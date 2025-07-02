@@ -31,10 +31,13 @@ jobs:
               if: steps.cache.outputs.cache-hit != 'true'
               run: make setup-install
             - run: |
-                make code-coverage || echo $? > code-coverage-status.txt
-            - name: Upload Code Coverage
+                make code-coverage
+                echo $? > code-coverage-status.txt
+            - name: Upload Code Coverage Status
               uses: actions/upload-artifact@v4
+              if: always()
               with:
+                name: coverage-status
                 path: code-coverage-status.txt
     failure-code-coverage:
         permissions:
@@ -42,13 +45,15 @@ jobs:
             issues: write
             pull-requests: write
         runs-on: ubuntu-latest
-        if: ${{ always() && failure()}}
+        if: always()
         needs: [code-coverage]
         steps:
             - uses: actions/checkout@v4
             - uses: actions/download-artifact@v4
+              with:
+                name: coverage-status
             - run: |
-                if [ "$(cat coverage_status.txt)" != "0" ]; then
+                if [ -f code-coverage-status.txt ] && [ "$(cat code-coverage-status.txt)" != "0" ]; then
                   echo "Coverage check failed, will label PR"
                   echo "fail" > should_label.txt
                 else
