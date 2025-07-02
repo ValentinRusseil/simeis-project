@@ -41,7 +41,9 @@ jobs:
         - run: cd tests && python3 ./test_robot.py 
 
   is-not-releasable:
-    if: startsWith(github.base_ref, 'release/') && !startsWith(github.event.pull_request.head.ref, 'main') && !startsWith(github.event.pull_request.head.ref, 'bug/')
+    permissions:
+      pull-requests: write
+    if: startsWith(github.event.pull_request.base.ref, 'release/') && !startsWith(github.event.pull_request.head.ref, 'main') && !startsWith(github.event.pull_request.head.ref, 'bug/')
     runs-on: ubuntu-latest
     steps:
       - uses: superbrothers/close-pull-request@v3

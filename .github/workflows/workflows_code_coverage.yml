@@ -30,11 +30,18 @@ jobs:
             - name: Install Dependecies
               if: steps.cache.outputs.cache-hit != 'true'
               run: make setup-install
-            - run: |
-                make code-coverage || echo $? > code-coverage-status.txt
-            - name: Upload Code Coverage
+            - name: Run code coverage
+              run: |
+                set +e
+                make code-coverage
+                coverage_exit_code=$?
+                echo $coverage_exit_code > code-coverage-status.txt
+                exit 0
+            - name: Upload Code Coverage Status
               uses: actions/upload-artifact@v4
+              if: always()
               with:
+                name: coverage-status
                 path: code-coverage-status.txt
     failure-code-coverage:
         permissions:
@@ -42,17 +49,27 @@ jobs:
             issues: write
             pull-requests: write
         runs-on: ubuntu-latest
-        if: ${{ always() && failure()}}
+        if: always()
         needs: [code-coverage]
         steps:
             - uses: actions/checkout@v4
-            - uses: actions/download-artifact@v4
-            - run: |
-                if [ "$(cat coverage_status.txt)" != "0" ]; then
-                  echo "Coverage check failed, will label PR"
-                  echo "fail" > should_label.txt
+            - name: Download coverage status
+              uses: actions/download-artifact@v4
+              continue-on-error: true
+              with:
+                name: coverage-status
+            - name: Check coverage status
+              run: |
+                if [ -f code-coverage-status.txt ]; then
+                  exit_code=$(cat code-coverage-status.txt)
+                  if [ "$exit_code" != "0" ]; then
+                    echo "Coverage check failed, will label PR"
+                    echo "fail" > should_label.txt
+                  else
+                    echo "Coverage OK"
+                  fi
                 else
-                  echo "Coverage OK"
+                  echo "No coverage status file found, assuming success"
                 fi
             - if: ${{ hashFiles('should_label.txt') != '' }}
               uses: actions-ecosystem/action-add-labels@v1
