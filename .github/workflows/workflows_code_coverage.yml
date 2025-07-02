@@ -28,7 +28,13 @@ jobs:
             - name: Install Dependecies
               if: steps.cache.outputs.cache-hit != 'true'
               run: make setup-install
-            - run: make code-coverage
+            - run: |
+                make code-coverage
+                echo $? > code-coverage-status.txt
+            - name: Upload Code Coverage
+              uses: actions/upload-artifact@v4
+              with:
+                path: code-coverage-status.txt
     failure-code-coverage:
         permissions:
             contents: write
@@ -39,7 +45,16 @@ jobs:
         needs: [code-coverage]
         steps:
             - uses: actions/checkout@v4
-            - uses: actions-ecosystem/action-add-labels@v1
+            - uses: actions/download-artifact@v4
+            - run: |
+                if [ "$(cat coverage_status.txt)" != "0" ]; then
+                  echo "Coverage check failed, will label PR"
+                  echo "fail" > should_label.txt
+                else
+                  echo "Coverage OK"
+                fi
+            - if: ${{ hashFiles('should_label.txt') != '' }}
+              uses: actions-ecosystem/action-add-labels@v1
               with:
                 github_token: ${{ secrets.GITHUB_TOKEN }}
                 labels: not enough test
