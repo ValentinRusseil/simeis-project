@@ -49,7 +49,6 @@ jobs:
     steps:
       - uses: superbrothers/close-pull-request@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
           comment: |
             This PR cannot be merged into a release/* branch because it is not based on the main branch or a bug/* branch.
             Only main or bug/* branches are allowed to merge into release/* branches.
