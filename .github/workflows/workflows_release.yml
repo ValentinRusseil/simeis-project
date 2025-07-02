@@ -1,10 +1,13 @@
 name: CI release
 
+permissions:
+  contents: write
+  pull-requests: write
+
 # Trigger
 on:
   pull_request_target:
-    types: [opened, synchronize]
-
+    types: [opened]
 # JOBS
 jobs:
   is-releasable:  
@@ -41,13 +44,12 @@ jobs:
         - run: cd tests && python3 ./test_robot.py 
 
   is-not-releasable:
-    permissions:
-      pull-requests: write
     if: startsWith(github.event.pull_request.base.ref, 'release/') && !startsWith(github.event.pull_request.head.ref, 'main') && !startsWith(github.event.pull_request.head.ref, 'bug/')
     runs-on: ubuntu-latest
     steps:
       - uses: superbrothers/close-pull-request@v3
         with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           comment: |
             This PR cannot be merged into a release/* branch because it is not based on the main branch or a bug/* branch.
             Only main or bug/* branches are allowed to merge into release/* branches.
