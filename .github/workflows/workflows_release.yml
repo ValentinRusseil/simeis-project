@@ -43,7 +43,7 @@ jobs:
         - run: make build-manual
         - run: make test
         - run: make check-code
-        - run: cd tests && python3 ./test_robot.py 
+        - run: cd tests && python3 ./test_robot.py test-rich
 
   is-not-releasable:
     if: startsWith(github.event.pull_request.base.ref, 'release/') && !startsWith(github.event.pull_request.head.ref, 'main') && !startsWith(github.event.pull_request.head.ref, 'bug/')
