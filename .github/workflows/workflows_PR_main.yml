@@ -24,7 +24,9 @@ jobs:
                   ~/.cargo/registry/cache/
                   ~/.cargo/git/db/
                   target/
-                key: ${{ runner.os }}--sbt-${{ hashFiles('**/Cargo.lock') }}
+                key: ${{ runner.os }}--cargo-${{ hashFiles('**/Cargo.lock') }}
+                restore-keys: |
+                  ${{ runner.os }}--cargo-
             - name: Install Dependecies
               if: steps.cache.outputs.cache-hit != 'true'
               run: make setup-install
@@ -42,7 +44,10 @@ jobs:
                 path: |
                   ~/.cargo/bin/
                   ~/.target
-                key: ${{ runner.os }}--sbt-${{ hashFiles('**/Cargo.lock') }}
+                key: ${{ runner.os }}--cargo-manual-${{ hashFiles('**/Cargo.lock') }}
+                restore-keys: |
+                  ${{ runner.os }}--cargo-manual-
+                  ${{ runner.os }}--cargo-
             - name: Install Dependecies
               if: steps.cache.outputs.cache-hit != 'true'
               run: make setup-install
@@ -60,7 +65,10 @@ jobs:
                 path: |
                   ~/.cargo/bin/
                   ~/.target
-                key: ${{ runner.os }}--sbt-${{ hashFiles('**/Cargo.lock') }}
+                key: ${{ runner.os }}--cargo-test-${{ hashFiles('**/Cargo.lock') }}
+                restore-keys: |
+                  ${{ runner.os }}--cargo-test-
+                  ${{ runner.os }}--cargo-
             - name: Install Dependecies
               if: steps.cache.outputs.cache-hit != 'true'
               run: make setup-install
@@ -78,7 +86,10 @@ jobs:
                 path: |
                   ~/.cargo/bin/
                   ~/.target
-                key: ${{ runner.os }}--sbt-${{ hashFiles('**/Cargo.lock') }}
+                key: ${{ runner.os }}--cargo-check-${{ hashFiles('**/Cargo.lock') }}
+                restore-keys: |
+                  ${{ runner.os }}--cargo-check-
+                  ${{ runner.os }}--cargo-
             - name: Install Dependecies
               if: steps.cache.outputs.cache-hit != 'true'
               run: make setup-install
