@@ -1,10 +1,13 @@
 name: CI release
 
+permissions:
+  contents: write
+  pull-requests: write
+
 # Trigger
 on:
   pull_request_target:
     types: [opened]
-
 # JOBS
 jobs:
   is-releasable:  
@@ -41,8 +44,6 @@ jobs:
         - run: cd tests && python3 ./test_robot.py 
 
   is-not-releasable:
-    permissions:
-      pull-requests: write
     if: startsWith(github.event.pull_request.base.ref, 'release/') && !startsWith(github.event.pull_request.head.ref, 'main') && !startsWith(github.event.pull_request.head.ref, 'bug/')
     runs-on: ubuntu-latest
     steps:
