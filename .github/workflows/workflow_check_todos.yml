@@ -1,0 +1,68 @@
+name: CI todos
+
+# Trigger
+on:
+    pull_request:
+        branches: ['*']
+        types: [opened, synchronize]
+
+# jobs
+jobs:
+    check-todos:
+        name: check todos
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - name: check if todos exist and are linked to an issue
+              run: |
+                  # Search all todos
+                  TODOS=$(grep -r "TODO" --exclude-dir=.git --exclude-dir=target --exclude-dir=.github --exclude="*.yml" --exclude="*.yaml" --exclude="*.md" . || true)
+
+                  if [ -z "$TODOS" ]; then
+                    echo "No TODO found"
+                    exit 0
+                  fi
+
+                  echo "TODOs found:"
+                  echo "$TODOS"
+                  echo ""
+
+                  #value of the list of issues nb found
+                  ISSUE_NUMBERS=$(echo "$TODOS" | grep -oE 'TODO[[:space:]]*\(#[0-9]+\)' | grep -oE '[0-9]+' | sort -u || true)
+
+                  echo "Number of the issues extracted: '$ISSUE_NUMBERS'"
+
+                  if [ -z "$ISSUE_NUMBERS" ]; then
+                    echo "Error: TODOs has been found but none are linked to issue format TODO (#X)"
+                    exit 1
+                  fi
+
+                  # Ensure each issue are on Github issues
+                  REPO_OWNER=$(echo "$GITHUB_REPOSITORY" | cut -d'/' -f1)
+                  REPO_NAME=$(echo "$GITHUB_REPOSITORY" | cut -d'/' -f2)
+
+                  MISSING_ISSUES=""
+                  for issue_num in $ISSUE_NUMBERS; do
+                    
+                    # Récupérer le titre de l'issue depuis GitHub API
+                    ISSUE_TITLE=$(curl -s \
+                      -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+                      "https://api.github.com/repos/$REPO_OWNER/$REPO_NAME/issues/$issue_num" \
+                      | grep '"title"' | cut -d'"' -f4 || true)
+                    
+                    # Vérifier si l'issue existe ET si son titre commence par [ISSUE-X]
+                    if [ -z "$ISSUE_TITLE" ]; then
+                      MISSING_ISSUES="$MISSING_ISSUES $issue_num"
+                      echo "Issue #$issue_num doesn't exist"
+                    elif echo "$ISSUE_TITLE" | grep -q "^\[ISSUE-$issue_num\]"; then
+                      echo "Issue #$issue_num exists with correct format: $ISSUE_TITLE"
+                    else
+                      MISSING_ISSUES="$MISSING_ISSUES $issue_num"
+                      echo "Issue #$issue_num exists but title doesn't start with [ISSUE-$issue_num]: $ISSUE_TITLE"
+                    fi
+                  done
+
+                  if [ -n "$MISSING_ISSUES" ]; then
+                    echo "Error: Following issues are referenced in TODOs but not on github:$MISSING_ISSUES"
+                    exit 1
+                  fi
