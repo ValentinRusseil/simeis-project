@@ -1,0 +1,33 @@
+name: CI Features
+
+# Trigger
+on:
+    pull_request:
+        branches: ["main"]
+        types: [opened, synchronize]
+
+# JOBS
+jobs:
+    build-matrix:
+        if: startsWith(github.event.pull_request.base.ref, 'release/')
+        strategy:
+            matrix:
+                version: [1.80.0, 1.85.0]
+                os: [ubuntu-latest, windows-latest]
+        runs-on: ${{ matrix.os }}
+        steps:
+            - uses: actions/checkout@v4
+            - uses: actions/cache@v4
+              id: cache
+              with:
+                path: |
+                  ~/.cargo/bin/
+                  ~/.cargo/registry/index/
+                  ~/.cargo/registry/cache/
+                  ~/.cargo/git/db/
+                  target/
+                key: ${{ runner.os }}--sbt-${{ hashFiles('**/Cargo.lock') }}
+            - name: Install Dependecies
+              if: steps.cache.outputs.cache-hit != 'true'
+              run: make setup-install
+            - run: make release

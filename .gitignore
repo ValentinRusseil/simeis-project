@@ -1,0 +1,8 @@
+target
+.cargohome
+result
+*.zip
+.~lock.*.ods#
+
+#ignore node_modules
+example/node_modules

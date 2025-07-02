@@ -1,0 +1,49 @@
+name: CI release
+
+# Trigger
+on:
+  pull_request_target:
+    types: [opened]
+
+# JOBS
+jobs:
+  is-releasable:  
+    if: startsWith(github.event.pull_request.base.ref, 'release/') && (startsWith(github.event.pull_request.head.ref , 'main') || startsWith(github.event.pull_request.head.ref, 'bug/'))
+    runs-on: ubuntu-latest
+    steps:
+        - uses: actions/checkout@v4
+        - uses: actions-rust-lang/setup-rust-toolchain@v1
+          with: 
+            toolchain: 1.85.0
+        - uses: actions/cache@v4
+          id: cache
+          with:
+            path: |
+              ~/.cargo/bin/
+              ~/.cargo/registry/index/
+              ~/.cargo/registry/cache/
+              ~/.cargo/git/db/
+              target/
+            key: ${{ runner.os }}--sbt-${{ hashFiles('**/Cargo.lock') }}
+        - name: Install Dependecies
+          if: steps.cache.outputs.cache-hit != 'true'
+          run: make setup-install
+        - uses: actions/setup-python@v3
+          with:
+            python-version: '3.12'
+        - run: chmod +x .github/workflows/start_simeis_server.sh && .github/workflows/start_simeis_server.sh
+        - run: make release
+        - run: make build-manual
+        - run: make test
+        - run: make check-code
+        - run: cd tests && python3 ./test_robot.py 
+
+  is-not-releasable:
+    if: startsWith(github.base_ref, 'release/') && !startsWith(github.event.pull_request.head.ref, 'main') && !startsWith(github.event.pull_request.head.ref, 'bug/')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: superbrothers/close-pull-request@v3
+        with:
+          comment: |
+            This PR cannot be merged into a release/* branch because it is not based on the main branch or a bug/* branch.
+            Only main or bug/* branches are allowed to merge into release/* branches.
