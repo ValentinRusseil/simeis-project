@@ -24,13 +24,14 @@ jobs:
                   ~/.cargo/registry/cache/
                   ~/.cargo/git/db/
                   target/
-                key: ${{ runner.os }}--sbt-${{ hashFiles('**/Cargo.lock') }}
+                key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+                restore-keys: |
+                  ${{ runner.os }}-cargo-
             - name: Install Dependecies
               if: steps.cache.outputs.cache-hit != 'true'
               run: make setup-install
             - run: |
-                make code-coverage
-                echo $? > code-coverage-status.txt
+                make code-coverage || echo $? > code-coverage-status.txt
             - name: Upload Code Coverage
               uses: actions/upload-artifact@v4
               with:
