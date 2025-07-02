@@ -30,9 +30,11 @@ jobs:
             - name: Install Dependecies
               if: steps.cache.outputs.cache-hit != 'true'
               run: make setup-install
-            - run: |
+            - name: Run code coverage
+              run: |
                 make code-coverage
                 echo $? > code-coverage-status.txt
+                exit 0
             - name: Upload Code Coverage Status
               uses: actions/upload-artifact@v4
               if: always()
