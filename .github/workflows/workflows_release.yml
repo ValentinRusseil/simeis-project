@@ -41,6 +41,10 @@ jobs:
         - run: cd tests && python3 ./test_robot.py 
 
   is-not-releasable:
+    permissions:
+      pull-requests: write
+      issues: write
+      contents: read
     if: startsWith(github.event.pull_request.base.ref, 'release/') && !startsWith(github.event.pull_request.head.ref, 'main') && !startsWith(github.event.pull_request.head.ref, 'bug/')
     runs-on: ubuntu-latest
     steps:
