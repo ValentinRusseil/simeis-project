@@ -1,9 +1,5 @@
 name: CI release
 
-permissions:
-  contents: write
-  pull-requests: write
-
 # Trigger
 on:
   pull_request_target:
