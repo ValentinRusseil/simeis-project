@@ -28,7 +28,7 @@ use crate::GameState;
 
 // TODO (#25) Use POST queries also, instead of everything with GET
 
-// TODO (#35) Use query parameters (with ntex::web::types::Query) instead of plain URLs
+// TODO (#25) Use query parameters (with ntex::web::types::Query) instead of plain URLs
 
 macro_rules! get_player {
     ($srv:ident, $req:ident) => {{
