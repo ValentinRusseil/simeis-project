@@ -27,6 +27,16 @@ jobs:
                   #value of the list of issues nb found
                   ISSUE_NUMBERS=$(echo "$TODOS" | grep -oE 'TODO[[:space:]]*\(#[0-9]+\)' | grep -oE '[0-9]+' | sort -u || true)
                   echo "Number of the issues extracted: '$ISSUE_NUMBERS'"
+                  
+                  # Check for TODOs without issue reference
+                  TODOS_WITHOUT_ISSUE=$(echo "$TODOS" | grep -v 'TODO[[:space:]]*\(#[0-9]+\)' || true)
+                  if [ -n "$TODOS_WITHOUT_ISSUE" ]; then
+                    echo "Error: TODOs found without issue reference (format TODO (#X)):"
+                    echo "$TODOS_WITHOUT_ISSUE"
+                    echo "Please fix them now or else we will find you"
+                    exit 1
+                  fi
+
                   if [ -z "$ISSUE_NUMBERS" ]; then
                     echo "Error: TODOs has been found but none are linked to issue format TODO (#X)"
                     exit 1
