@@ -26,7 +26,7 @@ use simeis_data::errors::Errcode;
 
 use crate::GameState;
 
-// TODO Use POST queries also, instead of everything with GET
+// TODO (#25) Use POST queries also, instead of everything with GET
 
 // TODO (#35) Use query parameters (with ntex::web::types::Query) instead of plain URLs
 
@@ -83,11 +83,11 @@ macro_rules! get_station {
     }};
 }
 
-// TODO    Ensure that multiple players cannot lock themselves:
+// TODO (#25)   Ensure that multiple players cannot lock themselves:
 //     Ask for write on X, wait for read on Y
 //     Ask for write on Y, wait for read on X
 
-// TODO    Centralise every read / write in the API
+// TODO  (#25)  Centralise every read / write in the API
 //     and give them a specific order:
 //         player first, station after, galaxy then, etc...
 // - Player index
@@ -302,7 +302,7 @@ async fn shipyard_buy_ship(
 }
 
 // CHECKED
-// TODO IMPORTANT    Get ship ID here, and adapt prices based on the ranks of the modules
+// TODO (#25) IMPORTANT    Get ship ID here, and adapt prices based on the ranks of the modules
 #[web::get("/station/{station_id}/shipyard/upgrade")]
 async fn shipyard_list_upgrades(
     srv: GameState,
@@ -437,7 +437,7 @@ async fn buy_crew_upgrade(
 }
 
 // CHECKED
-// TODO (#35)    Have an endpoint /station/{station_id}/crew/upgrade/{crew_id} instead
+// TODO (#24)    Have an endpoint /station/{station_id}/crew/upgrade/{crew_id} instead
 #[web::get("/station/{station_id}/crew/upgrade/trader")]
 async fn upgrade_station_trader(
     station_id: Path<StationId>,
@@ -545,7 +545,7 @@ async fn get_prices_ship_module(
     let player = get_player!(srv, req);
     let _station = get_station!(srv, player, id.as_ref()); // Ensure it exists
 
-    // TODO (#22) Price based on station
+    // TODO (#23) Price based on station
     let mut res: BTreeMap<ShipModuleType, f64> = BTreeMap::new();
     for smod in ShipModuleType::iter() {
         let price = smod.get_price_buy();
