@@ -131,8 +131,7 @@ jobs:
           EOF
 
           sudo systemctl daemon-reload
-          sudo systemctl enable simeis-server.service
-          sudo systemctl start simeis-server.service
+          sudo systemctl enable --now simeis-server.service
           sudo systemctl status simeis-server.service
 
       - name: Release the new binaries
