@@ -87,6 +87,7 @@ jobs:
 
           dpkg-deb --build debian
           mv debian.deb simeis-server_${{ env.GIT_RELEASE }}_all.deb
+          sudo dpkg -i simeis-server_${{ env.GIT_RELEASE }}_all.deb
 
           cat > simeis-project << EOF
           .\" Manpage for simeis project
