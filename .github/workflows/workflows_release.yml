@@ -67,7 +67,7 @@ jobs:
       - name: Install cargo-deb
         run: cargo install cargo-deb
       - name: Build .deb package
-        run: cargo deb --no-build
+        run: cargo deb --no-build -p simeis-server
       - name: Release the new binaries
         uses: mini-bomba/create-github-release@v1.2.0
         with:
