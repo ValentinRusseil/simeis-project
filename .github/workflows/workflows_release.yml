@@ -53,7 +53,7 @@ jobs:
     steps:
       - name: Aquire code
         if: always()
-        uses: actions/checkout@v4
+        uses: actions/checkout@v2
       - name: Put commit hash/name in env variables
         run: |
           echo "GIT_HASH=$(git rev-parse --short=8 HEAD)" >> $GITHUB_ENV
