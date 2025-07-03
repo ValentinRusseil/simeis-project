@@ -73,7 +73,7 @@ jobs:
 
           mkdir -p debian/DEBIAN
           find ./debian -type d | xargs chmod 755
-          nano debian/DEBIAN/control << EOF
+          cat > debian/DEBIAN/control << EOF
           Package: simeis-server
           Version: ${{ env.GIT_RELEASE }}
           Section: utils
