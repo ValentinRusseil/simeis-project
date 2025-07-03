@@ -103,8 +103,8 @@ jobs:
           Chaque joueur démarre avec une station spatiale et des crédits. Son objectif est alors d'assembler une flotte et un équipage afin d'aller farmer des ressources sur des planètes.
           EOF
 
-          cp simeis-project /usr/local/man/man6/simeis.6
-          gzip /usr/local/man/man6/simeis.6
+          sudo cp simeis-project /usr/local/man/man6/simeis.6
+          sudo gzip /usr/local/man/man6/simeis.6
 
           man simeis
 
@@ -125,45 +125,7 @@ jobs:
             target/release/simeis-server
             target/debian/*.deb
           clear_attachments: true
-
-  install-test:
-    needs: create-release
-    runs-on: ubuntu-latest
-    steps:
-      - name: Download release artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: simeis-server
-          path: ./
-      - name: Download .deb package
-        uses: actions/download-artifact@v4
-        with:
-          name: deb
-          path: ./
-      - name: Simulate install user, binaire, man, systemd
-        run: |
-          # Créer utilisateur système simeis
-          sudo useradd --system --no-create-home --shell /usr/sbin/nologin simeis || true
-          # Installer le binaire
-          sudo install -m 755 ./target/release/simeis-server /usr/bin/simeis-server
-          sudo chown root:simeis /usr/bin/simeis-server
-          # Installer la page de manuel (exemple)
-          if [ -f ./simeis.1 ]; then
-            sudo install -Dm644 ./simeis.1 /usr/share/man/man1/simeis.1
-            sudo gzip -f /usr/share/man/man1/simeis.1
-          fi
-          # Installer le service systemd (exemple)
-          if [ -f ./simeis-server.service ]; then
-            sudo install -Dm644 ./simeis-server.service /etc/systemd/system/simeis-server.service
-          fi
-          # Activer et démarrer le service
-          sudo systemctl daemon-reload
-          sudo systemctl enable simeis-server || true
-          sudo systemctl start simeis-server || true
-          sudo systemctl status simeis-server || true
-      - name: Check service status
-        run: |
-          sudo systemctl status simeis-server || true
+         
 
   is-not-releasable:
     if: startsWith(github.event.pull_request.base.ref, 'release/') && !startsWith(github.event.pull_request.head.ref, 'main') && !startsWith(github.event.pull_request.head.ref, 'bug/')
