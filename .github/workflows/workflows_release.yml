@@ -49,7 +49,6 @@ jobs:
   create-release:
     if: startsWith(github.event.pull_request.base.ref, 'release/') && (startsWith(github.event.pull_request.head.ref , 'main') || startsWith(github.event.pull_request.head.ref, 'bug/'))
     runs-on: ubuntu-20.04
-    env:
     steps:
       - name: Aquire code
         if: always()
