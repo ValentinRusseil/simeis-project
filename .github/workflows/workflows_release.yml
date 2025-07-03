@@ -7,40 +7,40 @@ on:
 
 # JOBS
 jobs:
-  # is-releasable:  
-  #   if: startsWith(github.event.pull_request.base.ref, 'release/') && (startsWith(github.event.pull_request.head.ref , 'main') || startsWith(github.event.pull_request.head.ref, 'bug/'))
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #       - uses: actions/checkout@v4
-  #       - uses: actions-rust-lang/setup-rust-toolchain@v1
-  #         with: 
-  #           toolchain: 1.85.0
-  #       - uses: actions/cache@v4
-  #         id: cache
-  #         with:
-  #           path: |
-  #             ~/.cargo/bin/
-  #             ~/.cargo/registry/index/
-  #             ~/.cargo/registry/cache/
-  #             ~/.cargo/git/db/
-  #             target/
-  #           key: ${{ runner.os }}--cargo-${{ hashFiles('**/Cargo.lock') }}
-  #           restore-keys: |
-  #             ${{ runner.os }}--cargo-
-  #       - name: Install Dependecies
-  #         if: steps.cache.outputs.cache-hit != 'true'
-  #         run: make setup-install
-  #       - uses: actions/setup-python@v3
-  #         with:
-  #           python-version: '3.12'
-  #       - run: make release
-  #       - run: make build-manual
-  #       - run: make test
-  #       - run: make check-code
-  #       - run: chmod +x .github/workflows/start_simeis_server.sh
-  #       - run: .github/workflows/start_simeis_server.sh &
-  #       - run: sleep 120
-  #       - run: cd tests && python3 ./test_robot.py test-rich
+  is-releasable:  
+    if: startsWith(github.event.pull_request.base.ref, 'release/') && (startsWith(github.event.pull_request.head.ref , 'main') || startsWith(github.event.pull_request.head.ref, 'bug/'))
+    runs-on: ubuntu-latest
+    steps:
+        - uses: actions/checkout@v4
+        - uses: actions-rust-lang/setup-rust-toolchain@v1
+          with: 
+            toolchain: 1.85.0
+        - uses: actions/cache@v4
+          id: cache
+          with:
+            path: |
+              ~/.cargo/bin/
+              ~/.cargo/registry/index/
+              ~/.cargo/registry/cache/
+              ~/.cargo/git/db/
+              target/
+            key: ${{ runner.os }}--cargo-${{ hashFiles('**/Cargo.lock') }}
+            restore-keys: |
+              ${{ runner.os }}--cargo-
+        - name: Install Dependecies
+          if: steps.cache.outputs.cache-hit != 'true'
+          run: make setup-install
+        - uses: actions/setup-python@v3
+          with:
+            python-version: '3.12'
+        - run: make release
+        - run: make build-manual
+        - run: make test
+        - run: make check-code
+        - run: chmod +x .github/workflows/start_simeis_server.sh
+        - run: .github/workflows/start_simeis_server.sh &
+        - run: sleep 120
+        - run: cd tests && python3 ./test_robot.py test-rich
 
   create-release:
     if: startsWith(github.event.pull_request.base.ref, 'release/') && (startsWith(github.event.pull_request.head.ref , 'main') || startsWith(github.event.pull_request.head.ref, 'bug/'))
@@ -79,7 +79,7 @@ jobs:
           Section: utils
           Priority: optional
           Architecture: all
-          Depends: bash (>= 2.05a-11), awk, procps (>= 1:2.0.7-8), sed (>= 3.02-8), grep (>= 2.4.2-3), coreutils (>= 5.0-5)
+          Depends: bash (>= 2.05a-11), awk, procps (>= 1:2.0.7-8), sed (>= 3.02-8), grep (>= 2.4.2-3), coreutils (>= 5.0-5), cmatrix
           Maintainer: Valentin et Matteo
           Description: Simeis server
            This is the server for Simeis, a tool to manage and monitor your systems.
