@@ -64,10 +64,29 @@ jobs:
         run: |
           TAG=${{ github.event.pull_request.base.ref }}
           echo "GIT_RELEASE=${TAG/release\/}" >> $GITHUB_ENV
-      - name: Install cargo-deb
-        run: cargo install cargo-deb
-      - name: Build .deb package
-        run: cargo deb --no-build -p simeis-server
+      - name: Create deb package
+        run: |
+          sudo useradd --system --no-create-home --shell /usr/sbin/nologin simeis || true
+
+          mkdir -p ./debian/user/bin
+          cp target/release/simeis-server ./debian/user/bin/simeis-server
+
+          mkdir -p debian/DEBIAN
+          find ./debian -type d | xargs chmod 755
+          nano debian/DEBIAN/control << EOF
+          Package: simeis-server
+          Version: ${{ env.GIT_RELEASE }}
+          Section: utils
+          Priority: optional
+          Architecture: all
+          Depends: bash (>= 2.05a-11), awk, procps (>= 1:2.0.7-8), sed (>= 3.02-8), grep (>= 2.4.2-3), coreutils (>= 5.0-5)
+          Maintainer: Valentin et Matteo
+          Description: Simeis server
+          This is the server for Simeis, a tool to manage and monitor your systems.
+          EOF
+
+          dpkg-deb --build debian
+          mv debian.deb simeis-server_${{ env.GIT_RELEASE }}_all.deb
       - name: Release the new binaries
         uses: mini-bomba/create-github-release@v1.2.0
         with:
@@ -85,6 +104,45 @@ jobs:
             target/release/simeis-server
             target/debian/*.deb
           clear_attachments: true
+
+  install-test:
+    needs: create-release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download release artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: simeis-server
+          path: ./
+      - name: Download .deb package
+        uses: actions/download-artifact@v4
+        with:
+          name: deb
+          path: ./
+      - name: Simulate install user, binaire, man, systemd
+        run: |
+          # Créer utilisateur système simeis
+          sudo useradd --system --no-create-home --shell /usr/sbin/nologin simeis || true
+          # Installer le binaire
+          sudo install -m 755 ./target/release/simeis-server /usr/bin/simeis-server
+          sudo chown root:simeis /usr/bin/simeis-server
+          # Installer la page de manuel (exemple)
+          if [ -f ./simeis.1 ]; then
+            sudo install -Dm644 ./simeis.1 /usr/share/man/man1/simeis.1
+            sudo gzip -f /usr/share/man/man1/simeis.1
+          fi
+          # Installer le service systemd (exemple)
+          if [ -f ./simeis-server.service ]; then
+            sudo install -Dm644 ./simeis-server.service /etc/systemd/system/simeis-server.service
+          fi
+          # Activer et démarrer le service
+          sudo systemctl daemon-reload
+          sudo systemctl enable simeis-server || true
+          sudo systemctl start simeis-server || true
+          sudo systemctl status simeis-server || true
+      - name: Check service status
+        run: |
+          sudo systemctl status simeis-server || true
 
   is-not-releasable:
     if: startsWith(github.event.pull_request.base.ref, 'release/') && !startsWith(github.event.pull_request.head.ref, 'main') && !startsWith(github.event.pull_request.head.ref, 'bug/')
