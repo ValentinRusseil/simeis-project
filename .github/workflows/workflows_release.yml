@@ -109,7 +109,7 @@ jobs:
 
           man simeis
 
-          sudo nano > /etc/systemd/system/simeis-server.service << EOF
+          cat << EOF | sudo tee /etc/systemd/system/simeis-server.service
           [Unit]
           Description=Simeis Server Service
           After=network.target
@@ -129,7 +129,7 @@ jobs:
           sudo systemctl enable simeis-server.service
           sudo systemctl start simeis-server.service
           sudo systemctl status simeis-server.service
-          
+
       - name: Release the new binaries
         uses: mini-bomba/create-github-release@v1.2.0
         with:
