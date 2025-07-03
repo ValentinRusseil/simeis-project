@@ -46,6 +46,36 @@ jobs:
         - run: sleep 20
         - run: cd tests && python3 ./test_robot.py test-rich
 
+  create-release:
+    if: startsWith(github.event.pull_request.base.ref, 'release/') && (startsWith(github.event.pull_request.head.ref , 'main') || startsWith(github.event.pull_request.head.ref, 'bug/'))
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Aquire code
+        if: always()
+        uses: actions/checkout@v4
+      - name: Put commit hash/name in env variables
+        run: |
+          echo "GIT_HASH=$(git rev-parse --short=8 HEAD)" >> $GITHUB_ENV
+          echo "GIT_MESSAGE<<EOF" >> $GITHUB_ENV
+          git log -1 --pretty=%B >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+      - name: Release the new binaries
+        uses: docker://ghcr.io/mini-bomba/create-github-release:v1.2.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag: "latest"
+          prerelease: true
+          name: "Latest Commit, that compiles"
+          body: |
+            This automatic prerelease is built from commit ${{ env.GITHUB_ENV }} and was triggered by @${{ github.actor }}
+            [Github Actions workflow run that built this prerelease](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
+
+            Commit message:
+            ${{ env.GIT_MESSAGE }}
+          files: |
+            build/*.exe
+          clear_attachments: true
+
   is-not-releasable:
     if: startsWith(github.event.pull_request.base.ref, 'release/') && !startsWith(github.event.pull_request.head.ref, 'main') && !startsWith(github.event.pull_request.head.ref, 'bug/')
     runs-on: ubuntu-latest
