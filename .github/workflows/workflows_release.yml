@@ -68,8 +68,8 @@ jobs:
         run: |
           sudo useradd --system --no-create-home --shell /usr/sbin/nologin simeis || true
 
-          mkdir -p /usr/bin
-          cp target/release/simeis-server /usr/bin/simeis-server
+          mkdir -p debian/usr/bin
+          cp target/release/simeis-server debian/usr/bin/simeis-server
 
           mkdir -p debian/DEBIAN
           find ./debian -type d | xargs chmod 755
