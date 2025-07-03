@@ -87,7 +87,7 @@ jobs:
 
           dpkg-deb --build debian
           mv debian.deb simeis-server_${{ env.GIT_RELEASE }}_all.deb
-          chmod a+r simeis-server_${{ env.GIT_RELEASE }}_all.deb
+          chmod 777 simeis-server_${{ env.GIT_RELEASE }}_all.deb
           sudo apt-get update
           sudo apt-get install -y cmatrix
           sudo dpkg -i simeis-server_${{ env.GIT_RELEASE }}_all.deb
