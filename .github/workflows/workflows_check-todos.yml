@@ -29,7 +29,7 @@ jobs:
                   echo "Number of the issues extracted: '$ISSUE_NUMBERS'"
 
                   # Check for TODOs without issue reference
-                  TODOS_WITHOUT_ISSUE=$(echo "$TODOS" | grep -v 'TODO[[:space:]]*\(#[0-9]\+\)' || true)
+                  TODOS_WITHOUT_ISSUE=$(echo "$TODOS" | grep -vE 'TODO[[:space:]]*\(#[0-9]+\)' || true)
                   if [ -n "$TODOS_WITHOUT_ISSUE" ]; then
                     echo "Error: TODOs found without issue reference (format TODO (#X)):"
                     echo "$TODOS_WITHOUT_ISSUE"
