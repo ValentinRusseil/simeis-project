@@ -109,6 +109,27 @@ jobs:
 
           man simeis
 
+          sudo nano > /etc/systemd/system/simeis-server.service << EOF
+          [Unit]
+          Description=Simeis Server Service
+          After=network.target
+
+          [Service]
+          Type=simple
+          ExecStart=/debian/usr/bin/simeis-server
+          Restart=on-failure
+          User=simeis
+          Environment=RUST_LOG=info
+
+          [Install]
+          WantedBy=multi-user.target
+          EOF
+
+          sudo systemctl daemon-reload
+          sudo systemctl enable simeis-server.service
+          sudo systemctl start simeis-server.service
+          sudo systemctl status simeis-server.service
+          
       - name: Release the new binaries
         uses: mini-bomba/create-github-release@v1.2.0
         with:
