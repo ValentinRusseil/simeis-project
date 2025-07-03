@@ -82,7 +82,7 @@ jobs:
           Depends: bash (>= 2.05a-11), awk, procps (>= 1:2.0.7-8), sed (>= 3.02-8), grep (>= 2.4.2-3), coreutils (>= 5.0-5)
           Maintainer: Valentin et Matteo
           Description: Simeis server
-          This is the server for Simeis, a tool to manage and monitor your systems.
+           This is the server for Simeis, a tool to manage and monitor your systems.
           EOF
 
           dpkg-deb --build debian
