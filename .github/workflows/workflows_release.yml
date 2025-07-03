@@ -64,9 +64,11 @@ jobs:
         uses: mini-bomba/create-github-release@v1.2.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          tag: 'v${{ github.run_number }}'
+          tag: |
+           TAG=${{ github.event.pull_request.base.ref }}
+           echo "${TAG/release\/}" >> $GITHUB_ENV
           prerelease: true
-          name: "Latest Commit, that compiles"
+          name: "Release ${{ env.GITHUB_ENV }}"
           body: |
             This automatic prerelease is built from commit ${{ env.GIT_HASH }} and was triggered by @${{ github.actor }}
             [Github Actions workflow run that built this prerelease](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
