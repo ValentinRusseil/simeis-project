@@ -69,7 +69,7 @@ jobs:
             Commit message:
             ${{ env.GIT_MESSAGE }}
           files: |
-            build/*.exe
+            build/*
           clear_attachments: true
 
   is-not-releasable:

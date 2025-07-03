@@ -13,7 +13,7 @@ jobs:
         strategy:
             matrix:
                 version: [1.80.0, 1.85.0]
-                os: [ubuntu-latest, windows-latest]
+                os: [ubuntu-latest]
         runs-on: ${{ matrix.os }}
         steps:
             - uses: actions/checkout@v4
