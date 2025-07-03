@@ -116,7 +116,7 @@ jobs:
 
           [Service]
           Type=simple
-          ExecStart=/debian/usr/bin/simeis-server
+          ExecStart=/usr/bin/simeis-server
           Restart=on-failure
           User=simeis
           Environment=RUST_LOG=info
@@ -145,7 +145,7 @@ jobs:
             ${{ env.GIT_MESSAGE }}
           files: |
             target/release/simeis-server
-            target/debian/*.deb
+            simeis-server_${{ env.GIT_RELEASE }}_all.deb
           clear_attachments: true
          
 
