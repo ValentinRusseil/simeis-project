@@ -68,8 +68,8 @@ jobs:
         run: |
           sudo useradd --system --no-create-home --shell /usr/sbin/nologin simeis || true
 
-          mkdir -p ./debian/user/bin
-          cp target/release/simeis-server ./debian/user/bin/simeis-server
+          mkdir -p /usr/bin
+          cp target/release/simeis-server /usr/bin/simeis-server
 
           mkdir -p debian/DEBIAN
           find ./debian -type d | xargs chmod 755
@@ -87,6 +87,27 @@ jobs:
 
           dpkg-deb --build debian
           mv debian.deb simeis-server_${{ env.GIT_RELEASE }}_all.deb
+
+          vi > simeis-project << EOF
+          .\" Manpage for simeis project
+          .TH simeis 6 "03 July 2025" "1.0" "simeis man page"
+          .SH NAME
+          simeis \- jeu de gestion spatiale par API
+          .SH START
+          Allez dans le dossier example et lancez la commande :
+          .br
+          python3 ./client.py <player_name>
+          .SH DESCRIPTION
+          Simeis est un jeu de gestion dans l'espace par API dont l'objectif principal est de ne jamais tomber en banqueroute.
+          .br
+          Chaque joueur démarre avec une station spatiale et des crédits. Son objectif est alors d'assembler une flotte et un équipage afin d'aller farmer des ressources sur des planètes.
+          EOF
+
+          cp simeis-project /usr/local/man/man6/simeis.6
+          gzip /usr/local/man/man6/simeis.6
+
+          man simeis
+
       - name: Release the new binaries
         uses: mini-bomba/create-github-release@v1.2.0
         with:
