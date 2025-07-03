@@ -64,6 +64,10 @@ jobs:
         run: |
           TAG=${{ github.event.pull_request.base.ref }}
           echo "GIT_RELEASE=${TAG/release\/}" >> $GITHUB_ENV
+      - name: Install cargo-deb
+        run: cargo install cargo-deb
+      - name: Build .deb package
+        run: cargo deb --no-build
       - name: Release the new binaries
         uses: mini-bomba/create-github-release@v1.2.0
         with:
@@ -79,6 +83,7 @@ jobs:
             ${{ env.GIT_MESSAGE }}
           files: |
             target/release/simeis-server
+            target/debian/*.deb
           clear_attachments: true
 
   is-not-releasable:
