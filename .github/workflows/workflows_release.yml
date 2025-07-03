@@ -60,13 +60,15 @@ jobs:
         with: 
           toolchain: 1.85.0
       - run: cargo build --release
+      - name: Re-build tag version
+        run: |
+          TAG=${{ github.event.pull_request.base.ref }}
+          echo "GIT_RELEASE=${TAG/release\/}" >> $GITHUB_ENV
       - name: Release the new binaries
         uses: mini-bomba/create-github-release@v1.2.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          tag: |
-           TAG=${{ github.event.pull_request.base.ref }}
-           echo "GIT_RELEASE={TAG/release\/}" >> $GITHUB_ENV
+          tag: ${{ env.GIT_RELEASE }}      
           prerelease: true
           name: "Release ${{ env.GIT_RELEASE }}"
           body: |
