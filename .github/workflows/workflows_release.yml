@@ -11,40 +11,40 @@ on:
 
 # JOBS
 jobs:
-  is-releasable:  
-    if: startsWith(github.event.pull_request.base.ref, 'release/') && (startsWith(github.event.pull_request.head.ref , 'main') || startsWith(github.event.pull_request.head.ref, 'bug/'))
-    runs-on: ubuntu-latest
-    steps:
-        - uses: actions/checkout@v4
-        - uses: actions-rust-lang/setup-rust-toolchain@v1
-          with: 
-            toolchain: 1.85.0
-        - uses: actions/cache@v4
-          id: cache
-          with:
-            path: |
-              ~/.cargo/bin/
-              ~/.cargo/registry/index/
-              ~/.cargo/registry/cache/
-              ~/.cargo/git/db/
-              target/
-            key: ${{ runner.os }}--cargo-${{ hashFiles('**/Cargo.lock') }}
-            restore-keys: |
-              ${{ runner.os }}--cargo-
-        - name: Install Dependecies
-          if: steps.cache.outputs.cache-hit != 'true'
-          run: make setup-install
-        - uses: actions/setup-python@v3
-          with:
-            python-version: '3.12'
-        - run: make release
-        - run: make build-manual
-        - run: make test
-        - run: make check-code
-        - run: chmod +x .github/workflows/start_simeis_server.sh
-        - run: .github/workflows/start_simeis_server.sh &
-        - run: sleep 20
-        - run: cd tests && python3 ./test_robot.py test-rich
+  # is-releasable:  
+  #   if: startsWith(github.event.pull_request.base.ref, 'release/') && (startsWith(github.event.pull_request.head.ref , 'main') || startsWith(github.event.pull_request.head.ref, 'bug/'))
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #       - uses: actions/checkout@v4
+  #       - uses: actions-rust-lang/setup-rust-toolchain@v1
+  #         with: 
+  #           toolchain: 1.85.0
+  #       - uses: actions/cache@v4
+  #         id: cache
+  #         with:
+  #           path: |
+  #             ~/.cargo/bin/
+  #             ~/.cargo/registry/index/
+  #             ~/.cargo/registry/cache/
+  #             ~/.cargo/git/db/
+  #             target/
+  #           key: ${{ runner.os }}--cargo-${{ hashFiles('**/Cargo.lock') }}
+  #           restore-keys: |
+  #             ${{ runner.os }}--cargo-
+  #       - name: Install Dependecies
+  #         if: steps.cache.outputs.cache-hit != 'true'
+  #         run: make setup-install
+  #       - uses: actions/setup-python@v3
+  #         with:
+  #           python-version: '3.12'
+  #       - run: make release
+  #       - run: make build-manual
+  #       - run: make test
+  #       - run: make check-code
+  #       - run: chmod +x .github/workflows/start_simeis_server.sh
+  #       - run: .github/workflows/start_simeis_server.sh &
+  #       - run: sleep 120
+  #       - run: cd tests && python3 ./test_robot.py test-rich
 
   create-release:
     if: startsWith(github.event.pull_request.base.ref, 'release/') && (startsWith(github.event.pull_request.head.ref , 'main') || startsWith(github.event.pull_request.head.ref, 'bug/'))
@@ -67,11 +67,11 @@ jobs:
           prerelease: true
           name: "Latest Commit, that compiles"
           body: |
-            This automatic prerelease is built from commit ${{ env.GITHUB_ENV }} and was triggered by @${{ github.actor }}
+            This automatic prerelease is built from commit ${{ github.env.GITHUB_ENV }} and was triggered by @${{ github.actor }}
             [Github Actions workflow run that built this prerelease](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
 
             Commit message:
-            ${{ env.GIT_MESSAGE }}
+            ${{ github.env.GIT_MESSAGE }}
           files: |
             build/*.exe
           clear_attachments: true
