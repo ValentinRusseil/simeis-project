@@ -103,6 +103,7 @@ jobs:
           Chaque joueur démarre avec une station spatiale et des crédits. Son objectif est alors d'assembler une flotte et un équipage afin d'aller farmer des ressources sur des planètes.
           EOF
 
+          sudo mkdir -p /usr/local/man/man6
           sudo cp simeis-project /usr/local/man/man6/simeis.6
           sudo gzip /usr/local/man/man6/simeis.6
 
