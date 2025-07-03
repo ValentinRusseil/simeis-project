@@ -66,9 +66,9 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           tag: |
            TAG=${{ github.event.pull_request.base.ref }}
-           echo "$GIT_RELEASE={TAG/release\/}" >> $GITHUB_ENV
+           echo "GIT_RELEASE={TAG/release\/}" >> $GITHUB_ENV
           prerelease: true
-          name: "Release ${{ env.GITHUB_ENV }}"
+          name: "Release ${{ env.GIT_RELEASE }}"
           body: |
             This automatic prerelease is built from commit ${{ env.GIT_HASH }} and was triggered by @${{ github.actor }}
             [Github Actions workflow run that built this prerelease](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
