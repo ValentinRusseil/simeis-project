@@ -66,7 +66,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           tag: |
            TAG=${{ github.event.pull_request.base.ref }}
-           echo "${TAG/release\/}" >> $GITHUB_ENV
+           echo "$GIT_RELEASE={TAG/release\/}" >> $GITHUB_ENV
           prerelease: true
           name: "Release ${{ env.GITHUB_ENV }}"
           body: |
