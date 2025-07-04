@@ -135,7 +135,7 @@ jobs:
           sudo systemctl status simeis-server.service
       - name: Build docker image
         run: |
-          docker build -t simeis-server:${{ env.GIT_RELEASE }} .
+          docker build -f .github/Dockerfile -t simeis-server:${{ env.GIT_RELEASE }} .
       - name: Release the new binaries
         uses: mini-bomba/create-github-release@v1.2.0
         with:
