@@ -161,6 +161,7 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
+          path: .github/Dockerfile
           platforms: linux/amd64,linux/arm64
           push: true
           tags: ${{ env.LAGIT_RELEASE }}
