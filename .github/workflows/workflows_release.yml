@@ -136,6 +136,7 @@ jobs:
       - name: Build docker image
         run: |
           docker build -f .github/Dockerfile -t simeis-server:${{ env.GIT_RELEASE }} .
+          docker image save simeis-server:${{ env.GIT_RELEASE }} > simeis-server_${{ env.GIT_RELEASE }}.tar
       - name: Release the new binaries
         uses: mini-bomba/create-github-release@v1.2.0
         with:
@@ -152,6 +153,7 @@ jobs:
           files: |
             target/release/simeis-server
             simeis-server_${{ env.GIT_RELEASE }}_all.deb
+            simeis-server_${{ env.GIT_RELEASE }}.tar
           clear_attachments: true
          
 
