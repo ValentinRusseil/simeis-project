@@ -1,9 +1,5 @@
 name: CI release
 
-permissions:
-  contents: read
-  pull-requests: write
-
 # Trigger
 on:
   pull_request_target:
@@ -11,40 +7,40 @@ on:
 
 # JOBS
 jobs:
-  # is-releasable:  
-  #   if: startsWith(github.event.pull_request.base.ref, 'release/') && (startsWith(github.event.pull_request.head.ref , 'main') || startsWith(github.event.pull_request.head.ref, 'bug/'))
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #       - uses: actions/checkout@v4
-  #       - uses: actions-rust-lang/setup-rust-toolchain@v1
-  #         with: 
-  #           toolchain: 1.85.0
-  #       - uses: actions/cache@v4
-  #         id: cache
-  #         with:
-  #           path: |
-  #             ~/.cargo/bin/
-  #             ~/.cargo/registry/index/
-  #             ~/.cargo/registry/cache/
-  #             ~/.cargo/git/db/
-  #             target/
-  #           key: ${{ runner.os }}--cargo-${{ hashFiles('**/Cargo.lock') }}
-  #           restore-keys: |
-  #             ${{ runner.os }}--cargo-
-  #       - name: Install Dependecies
-  #         if: steps.cache.outputs.cache-hit != 'true'
-  #         run: make setup-install
-  #       - uses: actions/setup-python@v3
-  #         with:
-  #           python-version: '3.12'
-  #       - run: make release
-  #       - run: make build-manual
-  #       - run: make test
-  #       - run: make check-code
-  #       - run: chmod +x .github/workflows/start_simeis_server.sh
-  #       - run: .github/workflows/start_simeis_server.sh &
-  #       - run: sleep 120
-  #       - run: cd tests && python3 ./test_robot.py test-rich
+  is-releasable:  
+    if: startsWith(github.event.pull_request.base.ref, 'release/') && (startsWith(github.event.pull_request.head.ref , 'main') || startsWith(github.event.pull_request.head.ref, 'bug/'))
+    runs-on: ubuntu-latest
+    steps:
+        - uses: actions/checkout@v4
+        - uses: actions-rust-lang/setup-rust-toolchain@v1
+          with: 
+            toolchain: 1.85.0
+        - uses: actions/cache@v4
+          id: cache
+          with:
+            path: |
+              ~/.cargo/bin/
+              ~/.cargo/registry/index/
+              ~/.cargo/registry/cache/
+              ~/.cargo/git/db/
+              target/
+            key: ${{ runner.os }}--cargo-${{ hashFiles('**/Cargo.lock') }}
+            restore-keys: |
+              ${{ runner.os }}--cargo-
+        - name: Install Dependecies
+          if: steps.cache.outputs.cache-hit != 'true'
+          run: make setup-install
+        - uses: actions/setup-python@v3
+          with:
+            python-version: '3.12'
+        - run: make release
+        - run: make build-manual
+        - run: make test
+        - run: make check-code
+        - run: chmod +x .github/workflows/start_simeis_server.sh
+        - run: .github/workflows/start_simeis_server.sh &
+        - run: sleep 120
+        - run: cd tests && python3 ./test_robot.py test-rich
 
   create-release:
     if: startsWith(github.event.pull_request.base.ref, 'release/') && (startsWith(github.event.pull_request.head.ref , 'main') || startsWith(github.event.pull_request.head.ref, 'bug/'))
@@ -59,22 +55,103 @@ jobs:
           echo "GIT_MESSAGE<<EOF" >> $GITHUB_ENV
           git log -1 --pretty=%B >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
+      - name: Build cargo in release
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with: 
+          toolchain: 1.85.0
+      - run: cargo build --release
+      - name: Re-build tag version
+        run: |
+          TAG=${{ github.event.pull_request.base.ref }}
+          echo "GIT_RELEASE=${TAG/release\/}" >> $GITHUB_ENV
+      - name: Create deb package
+        run: |
+          sudo useradd --system --no-create-home --shell /usr/sbin/nologin simeis || true
+
+          mkdir -p debian/usr/bin
+          cp target/release/simeis-server debian/usr/bin/simeis-server
+
+          mkdir -p debian/DEBIAN
+          find ./debian -type d | xargs chmod 755
+          cat > debian/DEBIAN/control << EOF
+          Package: simeis-server
+          Version: ${{ env.GIT_RELEASE }}
+          Section: utils
+          Priority: optional
+          Architecture: all
+          Depends: bash (>= 2.05a-11), awk, procps (>= 1:2.0.7-8), sed (>= 3.02-8), grep (>= 2.4.2-3), coreutils (>= 5.0-5), cmatrix
+          Maintainer: Valentin et Matteo
+          Description: Simeis server
+           This is the server for Simeis, a tool to manage and monitor your systems.
+          EOF
+
+          dpkg-deb --build debian
+          mv debian.deb simeis-server_${{ env.GIT_RELEASE }}_all.deb
+          chmod a+r simeis-server_${{ env.GIT_RELEASE }}_all.deb
+          chmod o+x $PWD
+          sudo apt-get update
+          sudo apt-get install -y cmatrix
+          sudo dpkg -i simeis-server_${{ env.GIT_RELEASE }}_all.deb
+
+          cat > simeis-project << EOF
+          .\" Manpage for simeis project
+          .TH simeis 6 "03 July 2025" "1.0" "simeis man page"
+          .SH NAME
+          simeis \- jeu de gestion spatiale par API
+          .SH START
+          Allez dans le dossier example et lancez la commande :
+          .br
+          python3 ./client.py <player_name>
+          .SH DESCRIPTION
+          Simeis est un jeu de gestion dans l'espace par API dont l'objectif principal est de ne jamais tomber en banqueroute.
+          .br
+          Chaque joueur démarre avec une station spatiale et des crédits. Son objectif est alors d'assembler une flotte et un équipage afin d'aller farmer des ressources sur des planètes.
+          EOF
+
+          sudo mkdir -p /usr/local/man/man6
+          sudo cp simeis-project /usr/local/man/man6/simeis.6
+          sudo gzip /usr/local/man/man6/simeis.6
+
+          man simeis
+
+          cat << EOF | sudo tee /etc/systemd/system/simeis-server.service
+          [Unit]
+          Description=Simeis Server Service
+          After=network.target
+
+          [Service]
+          Type=simple
+          ExecStart=/usr/bin/simeis-server
+          Restart=on-failure
+          User=simeis
+          Environment=RUST_LOG=info
+
+          [Install]
+          WantedBy=multi-user.target
+          EOF
+
+          sudo systemctl daemon-reload
+          sudo systemctl enable --now simeis-server.service
+          sudo systemctl status simeis-server.service
+
       - name: Release the new binaries
         uses: mini-bomba/create-github-release@v1.2.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          tag: "latest"
+          tag: ${{ env.GIT_RELEASE }}      
           prerelease: true
-          name: "Latest Commit, that compiles"
+          name: "Release ${{ env.GIT_RELEASE }}"
           body: |
-            This automatic prerelease is built from commit ${{ github.env.GIT_HASH }} and was triggered by @${{ github.actor }}
+            This automatic prerelease is built from commit ${{ env.GIT_HASH }} and was triggered by @${{ github.actor }}
             [Github Actions workflow run that built this prerelease](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
 
             Commit message:
-            ${{ github.env.GIT_MESSAGE }}
+            ${{ env.GIT_MESSAGE }}
           files: |
-            build/*.exe
+            target/release/simeis-server
+            simeis-server_${{ env.GIT_RELEASE }}_all.deb
           clear_attachments: true
+         
 
   is-not-releasable:
     if: startsWith(github.event.pull_request.base.ref, 'release/') && !startsWith(github.event.pull_request.head.ref, 'main') && !startsWith(github.event.pull_request.head.ref, 'bug/')
