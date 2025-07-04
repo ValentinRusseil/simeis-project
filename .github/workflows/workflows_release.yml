@@ -142,36 +142,16 @@ jobs:
           docker image save simeis-server:${{ env.GIT_RELEASE }} > simeis-server_${{ env.GIT_RELEASE }}.tar
 
       - name: Login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: valentinrusseil
-          password: ${{ secrets.DOCKER_TOKEN }}
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        run: |
+          echo "${{ secrets.DOCKER_TOKEN }}" | docker login -u valentinrusseil --password-stdin
 
       - name: Build and export to Docker
-        uses: docker/build-push-action@v6
-        with:
-          files: .github/Dockerfile
-          load: true
-          tags: valentinrusseil/simeis:${{ env.GIT_RELEASE }}
-
-      - name: Test
         run: |
-          docker run --rm valentinrusseil/simeis:${{ env.GIT_RELEASE }}
+          VERSION=${{ env.GIT_RELEASE }}
+          IMAGE_NAME=valentinrusseil/simeis-server:${VERSION}
+          docker tag simeis-server:${{ env.GIT_RELEASE }} ${IMAGE_NAME}
+          docker push ${IMAGE_NAME}
 
-      - name: Build and push
-        uses: docker/build-push-action@v6
-        with:
-          files: .github/Dockerfile
-          platforms: linux/amd64,linux/arm64
-          push: true
-          tags: valentinrusseil/simeis:${{ env.GIT_RELEASE }}
-    
       - name: Release the new binaries
         uses: mini-bomba/create-github-release@v1.2.0
         with:
