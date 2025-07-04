@@ -135,6 +135,12 @@ jobs:
           sudo systemctl enable --now simeis-server.service
           sudo systemctl status simeis-server.service
     
+      - name: Build Image
+        run: |
+          docker build -f .github/Dockerfile -t simeis-server:${{ env.GIT_RELEASE }} .
+
+          docker image save simeis-server:${{ env.GIT_RELEASE }} > simeis-server_${{ env.GIT_RELEASE }}.tar
+
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
@@ -152,11 +158,11 @@ jobs:
         with:
           files: .github/Dockerfile
           load: true
-          tags: ${{ env.GIT_RELEASE }}
+          tags: valentinrusseil/simeis:${{ env.GIT_RELEASE }}
 
       - name: Test
         run: |
-          docker run --rm ${{ env.GIT_RELEASE }}
+          docker run --rm valentinrusseil/simeis:${{ env.GIT_RELEASE }}
 
       - name: Build and push
         uses: docker/build-push-action@v6
@@ -164,7 +170,7 @@ jobs:
           files: .github/Dockerfile
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: ${{ env.GIT_RELEASE }}
+          tags: valentinrusseil/simeis:${{ env.GIT_RELEASE }}
     
       - name: Release the new binaries
         uses: mini-bomba/create-github-release@v1.2.0
