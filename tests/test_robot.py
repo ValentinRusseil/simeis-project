@@ -334,6 +334,8 @@ if __name__ == "__main__":
         game.go_mine()
         game.disp_status()
         game.go_sell()
+        
+        break
         """
         scénarios testés :
         1 :
