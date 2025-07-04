@@ -41,6 +41,7 @@ jobs:
   #       - run: .github/workflows/start_simeis_server.sh &
   #       - run: sleep 120
   #       - run: cd tests && python3 ./test_robot.py test-rich
+  #       - run: cd tests && python3 ./propertybased.py 60
 
   create-release:
     if: startsWith(github.event.pull_request.base.ref, 'release/') && (startsWith(github.event.pull_request.head.ref , 'main') || startsWith(github.event.pull_request.head.ref, 'bug/'))
@@ -136,7 +137,10 @@ jobs:
       - name: Build docker image
         run: |
           docker build -f .github/Dockerfile -t simeis-server:${{ env.GIT_RELEASE }} .
+
           docker image save simeis-server:${{ env.GIT_RELEASE }} > simeis-server_${{ env.GIT_RELEASE }}.tar
+
+          docker run --rm /usr/simeis:test
       - name: Release the new binaries
         uses: mini-bomba/create-github-release@v1.2.0
         with:
