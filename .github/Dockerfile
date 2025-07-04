@@ -5,4 +5,6 @@ RUN apt-get update && \
     git
 
 COPY target/release/simeis-server ./
+
+EXPOSE 8080
 CMD ["./simeis-server"]
