@@ -6,3 +6,5 @@ result
 
 #ignore node_modules
 example/node_modules
+
+example/__pycache__

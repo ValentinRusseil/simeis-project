@@ -79,9 +79,5 @@ def test_mkbar():
     if (score + potential) < score_max/2 :
         print("voidlen plus grand")
         assert voidlen > (scorelen+potentialen)/2
-            
-            
-    
-    
-    
+
 create_property_based_test(test_mkbar)
