@@ -157,7 +157,8 @@ jobs:
           wget https://github.com/ValentinRusseil/simeis-project/releases/download/${{ env.GIT_RELEASE }}/MatVal-simeis-server_${{ env.GIT_RELEASE }}_all.deb
           scp -o StrictHostKeyChecking=no -i ssh_key MatVal-simeis-server_${{ env.GIT_RELEASE }}_all.deb ${{ secrets.USER_SERVER }}@${{ secrets.IP_SERVER }}:/home/${{ secrets.USER_SERVER }}/MatValR/
 
-          ssh -i ssh_key ${{ secrets.USER_SERVER }}@${{ secrets.IP_SERVER }}
+          ssh -i ssh_key ${{ secrets.USER_SERVER }}@${{ secrets.IP_SERVER }} << EOF
+          ls
           cd /home/student/MatValR/
           dpkg-dep -x MatVal-simeis-server_${{ env.GIT_RELEASE }}_all.deb .
           usr/bin/MatVal-simeis-server
