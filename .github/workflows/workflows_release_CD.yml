@@ -76,9 +76,9 @@ jobs:
           sudo gzip -f /usr/local/man/man6/simeis.6
 
           man simeis
-          cat << EOF | sudo tee /etc/systemd/system/simeis-server.service
+          cat << EOF | sudo tee /etc/systemd/system/MatVal-simeis-server.service
           [Unit]
-          Description=Simeis Server Service
+          Description=MatVal Simeis Server Service
           After=network.target
           [Service]
           Type=simple
@@ -142,6 +142,7 @@ jobs:
   deployment:
     if: startsWith(github.event.pull_request.base.ref, 'release/') && (startsWith(github.event.pull_request.head.ref , 'main') || startsWith(github.event.pull_request.head.ref, 'bug/'))
     runs-on: ubuntu-latest
+    needs: [create-release]
     steps:
       - run: |
           scp -i ${{ secrets.SSH_KEY }} MatVal-simeis-server_${{ env.GIT_RELEASE }}_all.deb ${{ secrets.USER_SERVER }}@${{ secrets.IP_SERVER }}:/home/${{ secrets.USER_SERVER }}/MatValR
