@@ -34,7 +34,7 @@ jobs:
           sudo useradd --system --no-create-home --shell /usr/sbin/nologin simeis || true
 
           mkdir -p debian/usr/bin
-          cp target/release/simeis-server debian/usr/bin/simeis-server
+          mv debian/usr/bin/simeis-server debian/usr/bin/MatVal-simeis-server
           mkdir -p debian/DEBIAN
 
           find ./debian -type d | xargs chmod 755
@@ -68,6 +68,11 @@ jobs:
           sudo mkdir -p debian/usr/local/man/man6
           sudo cp simeis-project debian/usr/local/man/man6/simeis.6
           sudo gzip debian/usr/local/man/man6/simeis.6
+
+          # Installer le man sur le système courant pour le test
+          sudo mkdir -p /usr/local/man/man6
+          sudo cp simeis-project /usr/local/man/man6/simeis.6
+          sudo gzip -f /usr/local/man/man6/simeis.6
 
           man simeis
           cat << EOF | sudo tee /etc/systemd/system/simeis-server.service
