@@ -1,5 +1,5 @@
 #![allow(unexpected_cfgs)]
-use rand::{rngs::SmallRng, Rng, SeedableRng};
+use rand::{Rng, SeedableRng, rngs::SmallRng};
 
 #[allow(unused_mut)]
 pub fn create_property_based_test<T: Fn(&mut SmallRng)>(mut niter: usize, reg: &[u64], f: T) {

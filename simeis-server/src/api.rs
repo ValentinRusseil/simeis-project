@@ -3,14 +3,14 @@ use std::ops::{Deref, DerefMut};
 use std::str::FromStr;
 use std::time::Instant;
 
-use base64::{prelude::BASE64_STANDARD, Engine};
+use base64::{Engine, prelude::BASE64_STANDARD};
 use ntex::web::types::Path;
 use ntex::web::{self, HttpRequest, HttpResponse, ServiceConfig};
 use rand::Rng;
-use serde_json::{json, to_value, Value};
+use serde_json::{Value, json, to_value};
 use simeis_data::crew::{CrewId, CrewMember, CrewMemberType};
-use simeis_data::galaxy::station::StationId;
 use simeis_data::galaxy::SpaceUnit;
+use simeis_data::galaxy::station::StationId;
 use simeis_data::market::fee_rate;
 use simeis_data::player::{PlayerId, PlayerKey};
 use simeis_data::ship::module::{ShipModuleId, ShipModuleType};

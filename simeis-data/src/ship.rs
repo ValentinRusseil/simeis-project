@@ -11,7 +11,7 @@ use shipstats::ShipStats;
 use crate::crew::{Crew, CrewId, CrewMemberType};
 use crate::errors::Errcode;
 use crate::galaxy::station::Station;
-use crate::galaxy::{translation, Galaxy, SpaceCoord};
+use crate::galaxy::{Galaxy, SpaceCoord, translation};
 
 pub mod cargo;
 pub mod module;

@@ -1,6 +1,6 @@
 #![allow(unexpected_cfgs)]
-use rand::rngs::ThreadRng;
 use rand::Rng;
+use rand::rngs::ThreadRng;
 use scan::ScanResult;
 use station::StationId;
 use std::collections::BTreeMap;
@@ -102,13 +102,13 @@ impl Galaxy {
         let mut objects = vec![];
         for (coord, obj) in self.objects.iter() {
             let (x, y, z) = coord;
-            if (x < &sector.0 .0) || (x > &sector.0 .1) {
+            if (x < &sector.0.0) || (x > &sector.0.1) {
                 continue;
             }
-            if (y < &sector.1 .0) || (y > &sector.1 .1) {
+            if (y < &sector.1.0) || (y > &sector.1.1) {
                 continue;
             }
-            if (z < &sector.2 .0) || (z > &sector.2 .1) {
+            if (z < &sector.2.0) || (z > &sector.2.1) {
                 continue;
             }
             objects.push(obj);
@@ -255,12 +255,12 @@ pub fn translation(start: SpaceCoord, direction: (f64, f64, f64), dist: f64) -> 
 }
 
 fn is_in_sector(coord: &SpaceCoord, sector: &GalaxySector) -> bool {
-    coord.0 >= sector.0 .0
-        && coord.0 < sector.0 .1
-        && coord.1 >= sector.1 .0
-        && coord.1 < sector.1 .1
-        && coord.2 >= sector.2 .0
-        && coord.2 < sector.2 .1
+    coord.0 >= sector.0.0
+        && coord.0 < sector.0.1
+        && coord.1 >= sector.1.0
+        && coord.1 < sector.1.1
+        && coord.2 >= sector.2.0
+        && coord.2 < sector.2.1
 }
 
 // TODO (#25)    Make this scan use a sphere from the center point
@@ -268,19 +268,19 @@ fn sectors_around(center: &SpaceCoord, radius: f64) -> Vec<GalaxySector> {
     let mut sectors = vec![];
     let centersec = compute_sector(center.0, center.1, center.2);
 
-    let xsecstart = ((centersec.0 .0 as f64) - (radius * (SECTOR_SIZE.0 as f64))) as SpaceUnit;
+    let xsecstart = ((centersec.0.0 as f64) - (radius * (SECTOR_SIZE.0 as f64))) as SpaceUnit;
     let nsector_x = (1.0 + (2.0 * radius * (SECTOR_SIZE.0 as f64))) as SpaceUnit;
-    let xsecend = ((centersec.0 .1 as f64) + (radius * (SECTOR_SIZE.0 as f64))) as SpaceUnit;
+    let xsecend = ((centersec.0.1 as f64) + (radius * (SECTOR_SIZE.0 as f64))) as SpaceUnit;
     debug_assert_eq!(xsecstart + (nsector_x * SECTOR_SIZE.0), xsecend);
 
-    let ysecstart = ((centersec.1 .0 as f64) - (radius * (SECTOR_SIZE.1 as f64))) as SpaceUnit;
+    let ysecstart = ((centersec.1.0 as f64) - (radius * (SECTOR_SIZE.1 as f64))) as SpaceUnit;
     let nsector_y = (1.0 + (2.0 * radius * (SECTOR_SIZE.1 as f64))) as SpaceUnit;
-    let ysecend = ((centersec.1 .1 as f64) + (radius * (SECTOR_SIZE.1 as f64))) as SpaceUnit;
+    let ysecend = ((centersec.1.1 as f64) + (radius * (SECTOR_SIZE.1 as f64))) as SpaceUnit;
     debug_assert_eq!(ysecstart + (nsector_y * SECTOR_SIZE.1), ysecend);
 
-    let zsecstart = ((centersec.2 .0 as f64) - (radius * (SECTOR_SIZE.2 as f64))) as SpaceUnit;
+    let zsecstart = ((centersec.2.0 as f64) - (radius * (SECTOR_SIZE.2 as f64))) as SpaceUnit;
     let nsector_z = (1.0 + (2.0 * radius * (SECTOR_SIZE.2 as f64))) as SpaceUnit;
-    let zsecend = ((centersec.2 .1 as f64) + (radius * (SECTOR_SIZE.2 as f64))) as SpaceUnit;
+    let zsecend = ((centersec.2.1 as f64) + (radius * (SECTOR_SIZE.2 as f64))) as SpaceUnit;
     debug_assert_eq!(zsecstart + (nsector_z * SECTOR_SIZE.2), zsecend);
 
     for sx in 0..nsector_x {

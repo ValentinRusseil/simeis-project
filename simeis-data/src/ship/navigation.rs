@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     errors::Errcode,
-    galaxy::{get_delta, get_direction, get_distance, SpaceCoord},
+    galaxy::{SpaceCoord, get_delta, get_direction, get_distance},
 };
 
 use super::Ship;

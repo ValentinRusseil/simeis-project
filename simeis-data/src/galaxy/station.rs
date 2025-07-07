@@ -4,11 +4,11 @@ use crate::crew::{Crew, CrewId, CrewMemberType};
 use crate::errors::Errcode;
 use crate::market::{Market, MarketTx};
 use crate::player::Player;
+use crate::ship::Ship;
 use crate::ship::cargo::ShipCargo;
 use crate::ship::module::ShipModuleId;
 use crate::ship::resources::Resource;
 use crate::ship::upgrade::ShipUpgrade;
-use crate::ship::Ship;
 
 use super::scan::ScanResult;
 use super::{Galaxy, SpaceCoord};
