@@ -1,0 +1,20 @@
+name: CD automatisation
+
+#Trigger
+on:
+    pull_request_target:
+        types: [opened, synchronize]
+
+#Jobs
+jobs:
+    deployment:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Wait for release workflow
+              uses: kachick/wait-other-jobs@v3.8.1
+              timeout-minutes: 5
+              with:
+                wait-list: is_releasable, create_release, is-not-releasable
+            - run: |
+               echo "coucou"
+               echo "ssh: ${{ secrets.SSH_KEY }}"
