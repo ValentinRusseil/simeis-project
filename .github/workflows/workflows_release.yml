@@ -68,9 +68,11 @@ jobs:
       - name: Create deb package
         run: |
           sudo useradd --system --no-create-home --shell /usr/sbin/nologin simeis || true
+
           mkdir -p debian/usr/bin
           cp target/release/simeis-server debian/usr/bin/simeis-server
           mkdir -p debian/DEBIAN
+
           find ./debian -type d | xargs chmod 755
           cat > debian/DEBIAN/control << EOF
           Package: simeis-server
@@ -83,13 +85,16 @@ jobs:
           Description: Simeis server
            This is the server for Simeis, a tool to manage and monitor your systems.
           EOF
+
           dpkg-deb --build debian
           mv debian.deb simeis-server_${{ env.GIT_RELEASE }}_all.deb
           chmod a+r simeis-server_${{ env.GIT_RELEASE }}_all.deb
           chmod o+x $PWD
+
           sudo apt-get update
           sudo apt-get install -y cmatrix
-          sudo dpkg -i simeis-server_${{ env.GIT_RELEASE }}_all.deb
+          sudo dpkg -i MatVal-simeis-server_${{ env.GIT_RELEASE }}_all.deb
+
           cat > simeis-project << EOF
           .\" Manpage for simeis project
           .TH simeis 6 "03 July 2025" "1.0" "simeis man page"
@@ -104,9 +109,11 @@ jobs:
           .br
           Chaque joueur démarre avec une station spatiale et des crédits. Son objectif est alors d'assembler une flotte et un équipage afin d'aller farmer des ressources sur des planètes.
           EOF
+
           sudo mkdir -p /usr/local/man/man6
           sudo cp simeis-project /usr/local/man/man6/simeis.6
           sudo gzip /usr/local/man/man6/simeis.6
+
           man simeis
           cat << EOF | sudo tee /etc/systemd/system/simeis-server.service
           [Unit]
@@ -121,6 +128,7 @@ jobs:
           [Install]
           WantedBy=multi-user.target
           EOF
+
           sudo systemctl daemon-reload
           sudo systemctl enable --now simeis-server.service
           sudo systemctl status simeis-server.service
