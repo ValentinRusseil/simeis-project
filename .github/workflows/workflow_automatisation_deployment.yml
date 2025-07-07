@@ -15,7 +15,7 @@ jobs:
               uses: kachick/wait-other-jobs@v3.8.1
               timeout-minutes: 5
               with:
-                wait-list: is-releasable, create-release,is-not-releasable
+                wait-list: '["is-releasable", "create-release", "is-not-releasable"]'
             - run: |
                echo "coucou"
                echo "ssh: ${{ secrets.SSH_KEY }}"
