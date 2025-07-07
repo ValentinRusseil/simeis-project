@@ -87,8 +87,8 @@ jobs:
           EOF
 
           dpkg-deb --build debian
-          mv debian.deb simeis-server_${{ env.GIT_RELEASE }}_all.deb
-          chmod a+r simeis-server_${{ env.GIT_RELEASE }}_all.deb
+          mv debian.deb MatVal-simeis-server_${{ env.GIT_RELEASE }}_all.deb
+          chmod a+r MatVal-simeis-server_${{ env.GIT_RELEASE }}_all.deb
           chmod o+x $PWD
 
           sudo apt-get update
