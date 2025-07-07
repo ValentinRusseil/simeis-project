@@ -1,9 +1,9 @@
-use base64::{Engine, prelude::BASE64_STANDARD};
+use base64::{prelude::BASE64_STANDARD, Engine};
 use std::collections::{BTreeMap, HashMap};
 use std::sync::Arc;
 use std::time::{Duration, Instant};
-use tokio::sync::RwLock;
 use tokio::sync::mpsc::{Receiver, Sender};
+use tokio::sync::RwLock;
 use tokio::task::JoinHandle;
 
 #[cfg(not(feature = "testing"))]
@@ -13,7 +13,7 @@ use rand::{Rng, SeedableRng};
 
 use crate::errors::Errcode;
 use crate::galaxy::Galaxy;
-use crate::market::{MARKET_CHANGE_SEC, Market};
+use crate::market::{Market, MARKET_CHANGE_SEC};
 use crate::player::{Player, PlayerId, PlayerKey};
 use crate::ship::ShipState;
 use crate::syslog::{SyslogEvent, SyslogFifo, SyslogRecv, SyslogSend};

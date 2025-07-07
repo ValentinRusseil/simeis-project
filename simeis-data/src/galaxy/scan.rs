@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 use super::planet::PlanetInfo;
 use super::station::StationInfo;
-use super::{SpaceCoord, SpaceObject, get_distance};
+use super::{get_distance, SpaceCoord, SpaceObject};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ScanResult {

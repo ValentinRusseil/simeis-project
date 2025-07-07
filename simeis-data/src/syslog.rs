@@ -1,7 +1,7 @@
 #![allow(clippy::type_complexity)]
 use std::collections::BTreeMap;
 use std::sync::Arc;
-use tokio::sync::mpsc::{Receiver, Sender, error::TryRecvError};
+use tokio::sync::mpsc::{error::TryRecvError, Receiver, Sender};
 use tokio::sync::{Mutex, RwLock};
 
 use serde::{Deserialize, Serialize};
