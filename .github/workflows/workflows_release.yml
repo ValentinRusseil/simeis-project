@@ -87,8 +87,8 @@ jobs:
           EOF
 
           dpkg-deb --build debian
-          mv debian.deb simeis-server_${{ env.GIT_RELEASE }}_all.deb
-          chmod a+r simeis-server_${{ env.GIT_RELEASE }}_all.deb
+          mv debian.deb MatVal-simeis-server_${{ env.GIT_RELEASE }}_all.deb
+          chmod a+r MatVal-simeis-server_${{ env.GIT_RELEASE }}_all.deb
           chmod o+x $PWD
 
           sudo apt-get update
@@ -136,7 +136,7 @@ jobs:
       - name: Build Image
         run: |
           docker build -f .github/Dockerfile -t simeis-server:${{ env.GIT_RELEASE }} .
-          docker image save simeis-server:${{ env.GIT_RELEASE }} > simeis-server_${{ env.GIT_RELEASE }}.tar
+          docker image save simeis-server:${{ env.GIT_RELEASE }} > MatVal-simeis-server_${{ env.GIT_RELEASE }}.tar
       - name: Login to Docker Hub
         run: |
           echo "${{ secrets.DOCKER_TOKEN }}" | docker login -u valentinrusseil --password-stdin
@@ -165,8 +165,8 @@ jobs:
             ${{ env.GIT_MESSAGE }}
           files: |
             target/release/simeis-server
-            simeis-server_${{ env.GIT_RELEASE }}_all.deb
-            simeis-server_${{ env.GIT_RELEASE }}.tar
+            MatVal-simeis-server_${{ env.GIT_RELEASE }}_all.deb
+            MatVal-simeis-server_${{ env.GIT_RELEASE }}.tar
           clear_attachments: true
 
   is-not-releasable:
