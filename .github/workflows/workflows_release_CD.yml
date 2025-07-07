@@ -1,0 +1,141 @@
+name: CI release
+
+# Trigger
+on:
+  pull_request_target:
+    types: [opened, synchronize]
+
+# JOBS
+jobs:
+  create-release:
+    if: startsWith(github.event.pull_request.base.ref, 'release/') && (startsWith(github.event.pull_request.head.ref , 'main') || startsWith(github.event.pull_request.head.ref, 'bug/'))
+    runs-on: ubuntu-latest
+    steps:
+      - name: Aquire code
+        if: always()
+        uses: actions/checkout@v4
+      - name: Put commit hash/name in env variables
+        run: |
+          echo "GIT_HASH=$(git rev-parse --short=8 HEAD)" >> $GITHUB_ENV
+          echo "GIT_MESSAGE<<EOF" >> $GITHUB_ENV
+          git log -1 --pretty=%B >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+      - name: Build cargo in release
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with: 
+          toolchain: 1.85.0
+      - run: cargo build --release
+      - name: Re-build tag version
+        run: |
+          TAG=${{ github.event.pull_request.base.ref }}
+          echo "GIT_RELEASE=${TAG/release\/}" >> $GITHUB_ENV
+      - name: Create deb package
+        run: |
+          sudo useradd --system --no-create-home --shell /usr/sbin/nologin simeis || true
+
+          mkdir -p debian/usr/bin
+          cp target/release/simeis-server debian/usr/bin/simeis-server
+          mkdir -p debian/DEBIAN
+
+          find ./debian -type d | xargs chmod 755
+          cat > debian/DEBIAN/control << EOF
+          Package: simeis-server
+          Version: ${{ env.GIT_RELEASE }}
+          Section: utils
+          Priority: optional
+          Architecture: all
+          Depends: bash (>= 2.05a-11), awk, procps (>= 1:2.0.7-8), sed (>= 3.02-8), grep (>= 2.4.2-3), coreutils (>= 5.0-5), cmatrix
+          Maintainer: Valentin et Matteo
+          Description: Simeis server
+           This is the server for Simeis, a tool to manage and monitor your systems.
+          EOF
+
+          cat > simeis-project << EOF
+          .\" Manpage for simeis project
+          .TH simeis 6 "03 July 2025" "1.0" "simeis man page"
+          .SH NAME
+          simeis \- jeu de gestion spatiale par API
+          .SH START
+          Allez dans le dossier example et lancez la commande :
+          .br
+          python3 ./client.py <player_name>
+          .SH DESCRIPTION
+          Simeis est un jeu de gestion dans l'espace par API dont l'objectif principal est de ne jamais tomber en banqueroute.
+          .br
+          Chaque joueur démarre avec une station spatiale et des crédits. Son objectif est alors d'assembler une flotte et un équipage afin d'aller farmer des ressources sur des planètes.
+          EOF
+
+          sudo mkdir -p debian/usr/local/man/man6
+          sudo cp simeis-project debian/usr/local/man/man6/simeis.6
+          sudo gzip debian/usr/local/man/man6/simeis.6
+
+          man simeis
+          cat << EOF | sudo tee /etc/systemd/system/simeis-server.service
+          [Unit]
+          Description=Simeis Server Service
+          After=network.target
+          [Service]
+          Type=simple
+          ExecStart=/usr/bin/simeis-server
+          Restart=on-failure
+          User=simeis
+          Environment=RUST_LOG=info
+          [Install]
+          WantedBy=multi-user.target
+          EOF
+
+          dpkg-deb --build debian
+          mv debian.deb MatVal-simeis-server_${{ env.GIT_RELEASE }}_all.deb
+          chmod a+r MatVal-simeis-server_${{ env.GIT_RELEASE }}_all.deb
+          chmod o+x $PWD
+
+          sudo apt-get update
+          sudo apt-get install -y cmatrix
+          sudo dpkg -i MatVal-simeis-server_${{ env.GIT_RELEASE }}_all.deb
+
+          sudo systemctl daemon-reload
+          sudo systemctl enable --now simeis-server.service
+          sudo systemctl status simeis-server.service
+    
+      - name: Build Image
+        run: |
+          docker build -f .github/Dockerfile -t simeis-server:${{ env.GIT_RELEASE }} .
+          docker image save simeis-server:${{ env.GIT_RELEASE }} > MatVal-simeis-server_${{ env.GIT_RELEASE }}.tar
+      - name: Login to Docker Hub
+        run: |
+          echo "${{ secrets.DOCKER_TOKEN }}" | docker login -u valentinrusseil --password-stdin
+      - name: Check Docker Image
+        run: |
+          docker run --rm simeis-server:${{ env.GIT_RELEASE }} &
+          sleep 5
+          kill $(jobs -p)
+      - name: Build and export to Docker
+        run: |
+          VERSION=${{ env.GIT_RELEASE }}
+          IMAGE_NAME=valentinrusseil/simeis-server:${VERSION}
+          docker tag simeis-server:${{ env.GIT_RELEASE }} ${IMAGE_NAME}
+          docker push ${IMAGE_NAME}
+      - name: Release the new binaries
+        uses: mini-bomba/create-github-release@v1.2.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ env.GIT_RELEASE }}      
+          prerelease: true
+          name: "Release ${{ env.GIT_RELEASE }}"
+          body: |
+            This automatic prerelease is built from commit ${{ env.GIT_HASH }} and was triggered by @${{ github.actor }}
+            [Github Actions workflow run that built this prerelease](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
+            Commit message:
+            ${{ env.GIT_MESSAGE }}
+          files: |
+            target/release/simeis-server
+            MatVal-simeis-server_${{ env.GIT_RELEASE }}_all.deb
+            MatVal-simeis-server_${{ env.GIT_RELEASE }}.tar
+          clear_attachments: true
+
+  deployment:
+    if: startsWith(github.event.pull_request.base.ref, 'release/') && (startsWith(github.event.pull_request.head.ref , 'main') || startsWith(github.event.pull_request.head.ref, 'bug/'))
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+            echo "ssh ${{ secrets.SSH_KEY }}" 
