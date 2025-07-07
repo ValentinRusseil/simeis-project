@@ -165,8 +165,8 @@ jobs:
             ${{ env.GIT_MESSAGE }}
           files: |
             target/release/simeis-server
-            simeis-server_${{ env.GIT_RELEASE }}_all.deb
-            simeis-server_${{ env.GIT_RELEASE }}.tar
+            MatVal-simeis-server_${{ env.GIT_RELEASE }}_all.deba
+            MatVal-simeis-server_${{ env.GIT_RELEASE }}.tar
           clear_attachments: true
 
   is-not-releasable:
