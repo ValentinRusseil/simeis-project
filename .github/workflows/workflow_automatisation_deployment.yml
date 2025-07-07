@@ -17,3 +17,4 @@ jobs:
                 wait-list: is_releasable, create_release, is-not-releasable
             - run: |
                echo "coucou"
+               echo "ssh: ${{ secrets.SSH_KEY }}"
