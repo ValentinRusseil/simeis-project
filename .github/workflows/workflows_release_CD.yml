@@ -76,9 +76,9 @@ jobs:
           sudo gzip -f /usr/local/man/man6/simeis.6
 
           man simeis
-          cat << EOF | sudo tee /etc/systemd/system/simeis-server.service
+          cat << EOF | sudo tee /etc/systemd/system/MatVal-simeis-server.service
           [Unit]
-          Description=Simeis Server Service
+          Description=MatVal Simeis Server Service
           After=network.target
           [Service]
           Type=simple
