@@ -164,7 +164,7 @@ jobs:
 
           curl ${{ secrets.IP_SERVER }}:9544/version
 
-          sudo systemctl stop MatVal-simeis-server.service
+          pkill -f MatVal-simeis-server
           exit
 
   deployment-fail:
