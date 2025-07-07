@@ -20,7 +20,7 @@ const STATION_INIT_CARGO: f64 = 1000.0;
 
 pub type StationId = u16;
 
-// TODO (#23) Add refineries to create fuel & hull plate from raw resources
+// TODO (#43) Add refineries to create fuel & hull plate from raw resources
 #[derive(Serialize, Deserialize, Debug)]
 pub struct StationInfo {
     pub id: StationId,
@@ -28,7 +28,7 @@ pub struct StationInfo {
 }
 
 impl StationInfo {
-    // TODO (#24) Based on the scanner rank, get informations on crew and cargo
+    // TODO (#27) Based on the scanner rank, get informations on crew and cargo
     pub fn scan(_rank: u8, station: &Station) -> StationInfo {
         StationInfo {
             id: station.id,
@@ -62,7 +62,7 @@ impl Station {
         }
     }
 
-    // TODO (#25) Allow to build improvements for the scanner
+    // TODO (#27) Allow to build improvements for the scanner
     pub async fn scan(&self, galaxy: &Galaxy) -> ScanResult {
         galaxy.scan_sector(1, &self.position).await
     }
@@ -193,6 +193,9 @@ impl Station {
     }
 
     pub fn refuel_ship(&mut self, ship: &mut Ship) -> Result<f64, Errcode> {
+        if self.position != ship.position {
+            return Err(Errcode::ShipNotInStation);
+        }
         let Some(qty) = self.cargo.resources.get(&Resource::Fuel) else {
             return Err(Errcode::NoFuelInCargo);
         };
@@ -209,6 +212,9 @@ impl Station {
     }
 
     pub fn repair_ship(&mut self, ship: &mut Ship) -> Result<f64, Errcode> {
+        if self.position != ship.position {
+            return Err(Errcode::ShipNotInStation);
+        }
         let Some(qty) = self.cargo.resources.get(&Resource::HullPlate) else {
             return Err(Errcode::NoHullPlateInCargo);
         };
@@ -235,10 +241,10 @@ impl Station {
     }
 
     pub fn get_ship_upgrade_price(&self, upgrade: &ShipUpgrade) -> f64 {
-        // TODO (#23) Modify price based on station economy metrics
+        // TODO (#22) Modify price based on station economy metrics
         upgrade.get_price()
     }
 }
 
-// TODO (#23)    Have a "ship price rate" metric for a station, that afffects the ship prices
+// TODO (#22)    Have a "ship price rate" metric for a station, that afffects the ship prices
 //     Correlated to the price of the resources on the station

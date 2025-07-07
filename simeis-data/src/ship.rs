@@ -131,7 +131,7 @@ impl Ship {
         }
     }
 
-    // TODO (#25) Create a new ship with random specs
+    // TODO (#22) Create a new ship with random specs
     //         Used by traders to seek nice ships to buy
 
     // Public data of this ship to display on the marketplace
@@ -167,7 +167,7 @@ impl Ship {
         if let Some(ref pilot) = self.pilot {
             let pilot = self.crew.0.get(pilot).unwrap();
             debug_assert!(matches!(pilot.member_type, CrewMemberType::Pilot));
-            // TODO (#25) Handle case where pilot rank > PILOT_FUEL_SHARE * 10
+            // TODO Handle case where pilot rank > PILOT_FUEL_SHARE * 10
             let totshare = (PILOT_FUEL_SHARE * 10) as f64;
             self.stats.fuel_consumption *= (totshare - (pilot.rank as f64)) / totshare;
             self.stats.speed =
@@ -258,6 +258,7 @@ impl Ship {
         );
 
         let extraction = ExtractionInfo::create(self, &planet);
+        // TODO Else, return an error to say that we don't have any module to extract resource on this planet
         if !extraction.0.is_empty() {
             self.state = ShipState::Extracting(extraction.clone());
         }
@@ -349,9 +350,9 @@ fn test_ship_flight() {
                     || (costs.hull_usage > ship.hull_decay_capacity)
             );
         }
-        // TODO (#25) Check hull
-        // TODO (#25) Check fuel
-        // TODO (#25) Check arrived
-        // TODO (#25) Check distance
+        // TODO Check hull
+        // TODO Check fuel
+        // TODO Check arrived
+        // TODO Check distance
     });
 }

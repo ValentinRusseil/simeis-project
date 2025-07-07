@@ -26,9 +26,9 @@ use simeis_data::errors::Errcode;
 
 use crate::GameState;
 
-// TODO (#25) Use POST queries also, instead of everything with GET
+// TODO Use POST queries also, instead of everything with GET
 
-// TODO (#25) Use query parameters (with ntex::web::types::Query) instead of plain URLs
+// TODO (#35) Use query parameters (with ntex::web::types::Query) instead of plain URLs
 
 macro_rules! get_player {
     ($srv:ident, $req:ident) => {{
@@ -83,11 +83,11 @@ macro_rules! get_station {
     }};
 }
 
-// TODO (#25)   Ensure that multiple players cannot lock themselves:
+// TODO    Ensure that multiple players cannot lock themselves:
 //     Ask for write on X, wait for read on Y
 //     Ask for write on Y, wait for read on X
 
-// TODO  (#25)  Centralise every read / write in the API
+// TODO    Centralise every read / write in the API
 //     and give them a specific order:
 //         player first, station after, galaxy then, etc...
 // - Player index
@@ -302,7 +302,7 @@ async fn shipyard_buy_ship(
 }
 
 // CHECKED
-// TODO (#25) IMPORTANT    Get ship ID here, and adapt prices based on the ranks of the modules
+// TODO IMPORTANT    Get ship ID here, and adapt prices based on the ranks of the modules
 #[web::get("/station/{station_id}/shipyard/upgrade")]
 async fn shipyard_list_upgrades(
     srv: GameState,
@@ -437,7 +437,7 @@ async fn buy_crew_upgrade(
 }
 
 // CHECKED
-// TODO (#24)    Have an endpoint /station/{station_id}/crew/upgrade/{crew_id} instead
+// TODO (#35)    Have an endpoint /station/{station_id}/crew/upgrade/{crew_id} instead
 #[web::get("/station/{station_id}/crew/upgrade/trader")]
 async fn upgrade_station_trader(
     station_id: Path<StationId>,
@@ -545,7 +545,7 @@ async fn get_prices_ship_module(
     let player = get_player!(srv, req);
     let _station = get_station!(srv, player, id.as_ref()); // Ensure it exists
 
-    // TODO (#23) Price based on station
+    // TODO (#22) Price based on station
     let mut res: BTreeMap<ShipModuleType, f64> = BTreeMap::new();
     for smod in ShipModuleType::iter() {
         let price = smod.get_price_buy();
@@ -1069,11 +1069,18 @@ async fn gamestats(srv: GameState) -> impl web::Responder {
     build_response(Ok(to_value(data).unwrap()))
 }
 
+#[web::get("/version")]
+async fn get_version() -> impl web::Responder {
+    let v = env!("CARGO_PKG_VERSION");
+    build_response(Ok(json!({"version": v})))
+}
+
 pub fn configure(srv: &mut ServiceConfig) {
     #[cfg(feature = "testing")]
     srv.service(tick_server).service(tick_server_n);
 
     srv.service(ping)
+        .service(get_version)
         .service(gamestats)
         .service(resources_info)
         .service(get_syslogs)

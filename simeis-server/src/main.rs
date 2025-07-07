@@ -1,3 +1,4 @@
+#![allow(unexpected_cfgs)]
 use ntex::web;
 
 use simeis_data::game::Game;
@@ -8,6 +9,7 @@ pub type GameState = ntex::web::types::State<Game>;
 
 #[ntex::main]
 async fn main() -> std::io::Result<()> {
+    std::env::set_var("RUST_LOG", "debug");
     #[cfg(not(feature = "testing"))]
     let port = 8080;
 
@@ -39,4 +41,10 @@ async fn main() -> std::io::Result<()> {
 
     game.stop(gamethread).await;
     res
+}
+
+#[cfg(feature = "heavy_testing")]
+#[test]
+fn test_heavy_testing() {
+    assert!(false);
 }
