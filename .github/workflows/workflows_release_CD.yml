@@ -100,9 +100,9 @@ jobs:
           sudo dpkg -i MatVal-simeis-server_${{ env.GIT_RELEASE }}_all.deb
 
           sudo systemctl daemon-reload
-          sudo systemctl enable --now simeis-server.service
-          sudo systemctl status simeis-server.service
-    
+          sudo systemctl enable --now MatVal-simeis-server.service
+          sudo systemctl status MatVal-simeis-server.service
+
       - name: Build Image
         run: |
           docker build -f .github/Dockerfile -t simeis-server:${{ env.GIT_RELEASE }} .
