@@ -5,7 +5,7 @@ use strum::{EnumIter, EnumString, IntoStaticStr};
 
 use crate::galaxy::planet::Planet;
 
-use super::{cargo::ShipCargo, Ship};
+use super::{Ship, cargo::ShipCargo};
 
 #[derive(
     EnumIter,
