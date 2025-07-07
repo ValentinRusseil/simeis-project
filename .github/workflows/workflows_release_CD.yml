@@ -155,7 +155,7 @@ jobs:
       - name: Deploy to server
         run: |
           wget https://github.com/ValentinRusseil/simeis-project/releases/download/${{ env.GIT_RELEASE }}/MatVal-simeis-server_${{ env.GIT_RELEASE }}_all.deb
-          scp -i ssh_key MatVal-simeis-server_${{ env.GIT_RELEASE }}_all.deb ${{ secrets.USER_SERVER }}@${{ secrets.IP_SERVER }}:/home/${{ secrets.USER_SERVER }}/MatValR
+          scp -o StrictHostKeyChecking=no -i ssh_key MatVal-simeis-server_${{ env.GIT_RELEASE }}_all.deb ${{ secrets.USER_SERVER }}@${{ secrets.IP_SERVER }}:/home/${{ secrets.USER_SERVER }}/MatValR
 
           ssh -i ssh_key ${{ secrets.USER_SERVER }}@${{ secrets.IP_SERVER }}
           cd MatValR/
