@@ -162,9 +162,9 @@ jobs:
           dpkg-dep -x MatVal-simeis-server_${{ env.GIT_RELEASE }}_all.deb .
           usr/bin/MatVal-simeis-server
 
-          curl http://${{ secrets.IP_SERVER }}:9544/version
+          curl ${{ secrets.IP_SERVER }}:9544/version
 
-          systemctl stop MatVal-simeis-server.service
+          sudo systemctl stop MatVal-simeis-server.service
           exit
 
   deployment-fail:
