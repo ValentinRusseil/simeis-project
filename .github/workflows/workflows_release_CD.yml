@@ -82,7 +82,7 @@ jobs:
           After=network.target
           [Service]
           Type=simple
-          ExecStart=/usr/bin/simeis-server
+          ExecStart=/usr/bin/MatVal-simeis-server
           Restart=on-failure
           User=simeis
           Environment=RUST_LOG=info
