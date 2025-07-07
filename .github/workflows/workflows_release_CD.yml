@@ -159,7 +159,7 @@ jobs:
 
           ssh -i ssh_key ${{ secrets.USER_SERVER }}@${{ secrets.IP_SERVER }} << EOF
           cd MatValR/
-          dpkg-dep -x MatVal-simeis-server_${{ env.GIT_RELEASE }}_all.deb .
+          dpkg-deb -x MatVal-simeis-server_${{ env.GIT_RELEASE }}_all.deb .
           usr/bin/MatVal-simeis-server
 
           curl ${{ secrets.IP_SERVER }}:9544/version
