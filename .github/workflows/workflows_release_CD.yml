@@ -76,7 +76,9 @@ jobs:
           sudo gzip -f /usr/local/man/man6/simeis.6
 
           man simeis
-          cat << EOF | sudo tee debian/usr/systemd/system/MatVal-simeis-server.service
+
+          mkdir -p debian/usr/systemd/system
+          cat << EOF > debian/usr/systemd/system/MatVal-simeis-server.service
           [Unit]
           Description=MatVal Simeis Server Service
           After=network.target
