@@ -1,4 +1,4 @@
-PORT=8080
+PORT=9544
 URL=f"http://127.0.0.1:{PORT}"
 
 import os
@@ -336,25 +336,25 @@ if __name__ == "__main__":
         game.go_sell()
         
         break
-        """
-        scénarios testés :
-        1 :
-            - On créé un nouveau joueur
-            - Son argent de départ est X
-            - On achète un vaisseau
-            - La transaction doit réussir
-            - Notre argent doit avoir diminué
-            - On achète un module de Miner
-            - La transaction doit réussir
-            - Notre argent doit avoir encore diminué
-        2 :
-            - On recherche une planète a farmer
-            - On récupère la position du vaisseau
-            - On récupère la position de la planète ciblée
-            - On verifie que le vaisseau se soit bien déplacé sur la position de la planète ciblée
-        3 : 
-            - On vérifie le storage du vaisseau avant de quitter une planète
-            - On voyage vers la station
-            - On vend les marchandises 
-            - on verifie que notre storage est vide
-        """
+"""
+scénarios testés :
+1 :
+    - On créé un nouveau joueur
+    - Son argent de départ est X
+    - On achète un vaisseau
+    - La transaction doit réussir
+    - Notre argent doit avoir diminué
+    - On achète un module de Miner
+    - La transaction doit réussir
+    - Notre argent doit avoir encore diminué
+2 :
+    - On recherche une planète a farmer
+    - On récupère la position du vaisseau
+    - On récupère la position de la planète ciblée
+    - On verifie que le vaisseau se soit bien déplacé sur la position de la planète ciblée
+3 : 
+    - On vérifie le storage du vaisseau avant de quitter une planète
+    - On voyage vers la station
+    - On vend les marchandises 
+    - on verifie que notre storage est vide
+"""
