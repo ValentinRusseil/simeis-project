@@ -77,8 +77,7 @@ jobs:
 
           man simeis
 
-          mkdir -p debian/usr/systemd/system
-          cat << EOF > debian/usr/systemd/system/MatVal-simeis-server.service
+          cat << EOF | sudo tee /etc/systemd/system/MatVal-simeis-server.service
           [Unit]
           Description=MatVal Simeis Server Service
           After=network.target
@@ -91,6 +90,10 @@ jobs:
           [Install]
           WantedBy=multi-user.target
           EOF
+          
+          # Copy MatVal-simeis-server.service to debian/usr/lib/systemd/system
+          sudo mkdir -p debian/usr/lib/systemd/system
+          sudo cp /etc/systemd/system/MatVal-simeis-server.service debian/usr/lib/systemd/system/
 
           dpkg-deb --build debian
           mv debian.deb MatVal-simeis-server_${{ env.GIT_RELEASE }}_all.deb
@@ -162,7 +165,7 @@ jobs:
           ssh -i ssh_key ${{ secrets.USER_SERVER }}@${{ secrets.IP_SERVER }} << EOF
           cd MatValR/
           pkill -f MatVal-simeis-server
-
+          
           dpkg-deb -x MatVal-simeis-server_${{ env.GIT_RELEASE }}_all.deb .
           usr/bin/MatVal-simeis-server &
 
