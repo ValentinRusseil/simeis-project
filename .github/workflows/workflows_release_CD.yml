@@ -167,7 +167,7 @@ jobs:
           pkill -f MatVal-simeis-server
           
           dpkg-deb -x MatVal-simeis-server_${{ env.GIT_RELEASE }}_all.deb .
-          usr/bin/MatVal-simeis-server.service &
+          usr/bin/MatVal-simeis-server &
 
           curl ${{ secrets.IP_SERVER }}:9544/version
 
