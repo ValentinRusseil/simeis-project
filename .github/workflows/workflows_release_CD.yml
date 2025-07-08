@@ -162,11 +162,12 @@ jobs:
           scp -o StrictHostKeyChecking=no -i ssh_key MatVal-simeis-server_${{ env.GIT_RELEASE }}_all.deb ${{ secrets.USER_SERVER }}@${{ secrets.IP_SERVER }}:/home/${{ secrets.USER_SERVER }}/MatValR/
 
           ssh -i ssh_key ${{ secrets.USER_SERVER }}@${{ secrets.IP_SERVER }} << EOF
+          mkdir MatValR
           cd MatValR/
           pkill -f MatVal-simeis-server
           
-          dpkg-deb -x MatVal-simeis-server_${{ env.GIT_RELEASE }}_all.deb .
-          usr/bin/MatVal-simeis-server &
+          sudo dpkg -i MatVal-simeis-server_${{ env.GIT_RELEASE }}_all.deb .
+          sudo systemctl start MatVal-simeis-server.service &
 
           curl ${{ secrets.IP_SERVER }}:9544/version
 
@@ -178,6 +179,17 @@ jobs:
     needs: [deployment]
     if: failure()
     steps:
+      - uses: actions/checkout@v4
+      - name: Download coverage status
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: deployment-fail
+      - name: Deployement fail
+        uses: actions-ecosystem/action-add-labels@v1
+        with:
+            github_token: ${{ secrets.GITHUB_TOKEN }}
+            labels: deployment-fail
       - run: |
           echo "Deployment failed. Please check the logs for more details."
           exit 0
