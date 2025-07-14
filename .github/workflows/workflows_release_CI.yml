@@ -1,8 +1,11 @@
 name: CI release
 
+# Pas de matrix build comme demandé dans le TP
+
 # Trigger
 on:
   pull_request_target:
+    # Ajouter un trigger sur la branche release ici aurait simplifié beaucoup des conditions
     types: [opened, synchronize]
 
 # JOBS
@@ -33,13 +36,19 @@ jobs:
         - uses: actions/setup-python@v3
           with:
             python-version: '3.12'
+        # On veut que si ça fail, ça fail FAST:
+        # - check-code  (rapide)
+        # - build-manual (rapide)
+        # - test unitaires (rapide)
+        # - release (moyen)
+        # - Tests lourds (lents)
         - run: make release
         - run: make build-manual
         - run: make test
         - run: make check-code
         - run: chmod +x .github/workflows/start_simeis_server.sh
         - run: .github/workflows/start_simeis_server.sh &
-        - run: sleep 120
+        - run: sleep 120  # Attendre autant de temps c'est loooong pour une CI, 2 sec suffit
         - run: cd tests && python3 ./test_robot.py test-rich
         - run: cd tests && python3 ./propertybased.py 60
 

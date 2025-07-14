@@ -15,15 +15,19 @@ jobs:
             - uses: actions/checkout@v4
             - name: check if todos exist and are linked to an issue
               run: |
+                  # Bon script overall, presque suspicieux, il aurait fallu le mettre dans
+                  # un fichier de script shell pour que ça soit plus lisible, ici c'est relou
                   # Search all todos
                   TODOS=$(grep -r "TODO" --exclude-dir=.git --exclude-dir=target --exclude-dir=.github --exclude="*.yml" --exclude="*.yaml" --exclude="*.md" . || true)
                   if [ -z "$TODOS" ]; then
                     echo "No TODO found"
                     exit 0
                   fi
+
                   echo "TODOs found:"
                   echo "$TODOS"
                   echo ""
+
                   #value of the list of issues nb found
                   ISSUE_NUMBERS=$(echo "$TODOS" | grep -oE 'TODO[[:space:]]*\(#[0-9]+\)' | grep -oE '[0-9]+' | sort -u || true)
                   echo "Number of the issues extracted: '$ISSUE_NUMBERS'"
@@ -37,22 +41,26 @@ jobs:
                     exit 1
                   fi
 
+                  # Théoriquement, ce cas ne devrait jamais arriver ?
                   if [ -z "$ISSUE_NUMBERS" ]; then
                     echo "Error: TODOs has been found but none are linked to issue format TODO (#X)"
                     exit 1
                   fi
+
                   # Ensure each issue are on Github issues
+                  # Vous pouvez utiliser directement `GITHUB_REPOSITORY` dans l'URL sinon
                   REPO_OWNER=$(echo "$GITHUB_REPOSITORY" | cut -d'/' -f1)
                   REPO_NAME=$(echo "$GITHUB_REPOSITORY" | cut -d'/' -f2)
                   MISSING_ISSUES=""
+
                   for issue_num in $ISSUE_NUMBERS; do
-                    
                     #Ensure issue exist by looking the ID from GitHub API
+                    # Utiliser `jq` ici aurait eu plus de sens
                     ISSUE_ID=$(curl -s \
                       -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
                       "https://api.github.com/repos/$REPO_OWNER/$REPO_NAME/issues/$issue_num" \
                       | grep '"number"' | cut -d':' -f2 | tr -d ' ,' || true)
-                    
+
                     # Ensure issue exist
                     if [ -z "$ISSUE_ID" ] || [ "$ISSUE_ID" != "$issue_num" ]; then
                       MISSING_ISSUES="$MISSING_ISSUES $issue_num"

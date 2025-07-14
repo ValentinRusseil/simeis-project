@@ -1,5 +1,8 @@
 name: CI Except Main
 
+# Je ne comprends pas l'utilité de ce workflow
+# Ni par ses triggers, ni pas les actions réalisées
+
 # Trigger
 on:
     pull_request:
@@ -17,6 +20,7 @@ jobs:
               with: 
                 toolchain: 1.85.0
             - run: make test
+
     check-code:
         runs-on: ubuntu-latest
         steps:
