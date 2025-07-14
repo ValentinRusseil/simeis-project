@@ -20,12 +20,16 @@ jobs:
         with: 
           toolchain: 1.85.0
 
+      # Installer cargo-edit avant, et mettre une layer de cache entre les deux
+      # pour éviter de gaspiller des resources (même si c'est à minuit)
       - name: Update dependencies
         run: |
           cargo install cargo-edit
           cargo update
           cargo upgrade
 
+      # La création de la PR ne se fera que si une dépendance a vu sa version
+      # mise à jour, sinon c'est une PR vide, il faut faire un check de plus
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v7
         with:

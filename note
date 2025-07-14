@@ -1,0 +1,14 @@
+NOTE de correction:
+Si j'ajoute un commentaire, ça ne veut pas dire que j'enlève des points
+
+De manière générale, projet plutôt bien fait, mais avec beaucoup d'erreurs prouvant que
+vous ne comprenez pas bien ce que vous faites actuellement:
+- Est-ce que je créé une grosse release, ou j'ajoute un petit changement à la branche
+- Est-ce que ce mon artefact est un exécutable, une archive, de la documentation
+- Où s'exécute la commande, par qui, avec quels droits (PAS BESOIN DE SUDO)
+etc...
+
+Il aurait fallu essayer de creuser un peu plus ce qu'il se passe sous le capot, pour
+comprendre et valider, plutôt que de seulement rester à "ça se comporte comme il faut, c'est good"
+
+J'ai rajouté un bonus parce que vous n'étiez que 2

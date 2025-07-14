@@ -3,6 +3,7 @@ name: CD release
 # Trigger
 on:
   pull_request_target:
+    # Idem que release CI
     types: [opened, synchronize]
 
 # JOBS
@@ -12,43 +13,57 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Aquire code
-        if: always()
+        if: always() # Inutile
         uses: actions/checkout@v4
       - name: Put commit hash/name in env variables
         run: |
           echo "GIT_HASH=$(git rev-parse --short=8 HEAD)" >> $GITHUB_ENV
+
+          # Qu'est-ce que c'est que cette horreur
+          # Je ne sais pas si ça marche, et même si ça marche c'est horrible
           echo "GIT_MESSAGE<<EOF" >> $GITHUB_ENV
           git log -1 --pretty=%B >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
+
+      # Le nom et l'action ne sont pas liés
       - name: Build cargo in release
         uses: actions-rust-lang/setup-rust-toolchain@v1
         with: 
           toolchain: 1.85.0
+
       - run: cargo build --release
-      - name: Re-build tag version
+
+      - name: Re-build tag version  # ???
         run: |
           TAG=${{ github.event.pull_request.base.ref }}
           echo "GIT_RELEASE=${TAG/release\/}" >> $GITHUB_ENV
+
       - name: Create deb package
         run: |
+          # Ne pas utiliser sudo dans un workflow
+          # Pourquoi ajouter un utilisateur à la CI ?
+          # C'est dans le package qu'il faut configurer le fait d'ajouter un utilisateur
           sudo useradd --system --no-create-home --shell /usr/sbin/nologin simeis || true
 
           mkdir -p debian/usr/bin
+          # Euh sinon `mv target/release/simeis-server debian/usr/bin/MatVal-simeis-server` ?
           cp target/release/simeis-server debian/usr/bin/simeis-server
           mv debian/usr/bin/simeis-server debian/usr/bin/MatVal-simeis-server
           mkdir -p debian/DEBIAN
 
+          # Utiliser `find ./debian -type d -exec chmod 755 {} \;` plutôt
           find ./debian -type d | xargs chmod 755
+
           cat > debian/DEBIAN/control << EOF
           Package: simeis-server
           Version: ${{ env.GIT_RELEASE }}
-          Section: utils
+          Section: utils  # Games plutôt
           Priority: optional
           Architecture: all
-          Depends: bash (>= 2.05a-11), awk, procps (>= 1:2.0.7-8), sed (>= 3.02-8), grep (>= 2.4.2-3), coreutils (>= 5.0-5), cmatrix
+          Depends: bash (>= 2.05a-11), awk, procps (>= 1:2.0.7-8), sed (>= 3.02-8), grep (>= 2.4.2-3), coreutils (>= 5.0-5), cmatrix   # On ne dépends pas de awk, sed, grep, etc...
           Maintainer: Valentin et Matteo
           Description: Simeis server
-           This is the server for Simeis, a tool to manage and monitor your systems.
+           This is the server for Simeis, a tool to manage and monitor your systems. # WTF
           EOF
 
           cat > simeis-project << EOF
@@ -57,6 +72,8 @@ jobs:
           .SH NAME
           simeis \- jeu de gestion spatiale par API
           .SH START
+          Quel dossier example ? Le package debian ne l'a pas copié sur le système, ça
+          n'a rien à faire dans le manuel
           Allez dans le dossier example et lancez la commande :
           .br
           python3 ./client.py <player_name>
@@ -71,6 +88,8 @@ jobs:
           sudo gzip debian/usr/local/man/man6/simeis.6
 
           # Installer le man sur le système courant pour le test
+          # Vous l'avez mis 2 fois (voir au dessus)
+          # + maintenant que le test est terminé, enlevez moi ces horreurs du workflow
           sudo mkdir -p /usr/local/man/man6
           sudo cp simeis-project /usr/local/man/man6/simeis.6
           sudo gzip -f /usr/local/man/man6/simeis.6
@@ -90,41 +109,55 @@ jobs:
           [Install]
           WantedBy=multi-user.target
           EOF
-          
-          sudo mkdir -p debian/usr/lib/systemd/system
+
+          # Toujours pas de sudo
+          sudo mkdir -p debian/usr/lib/systemd/system  # Pas dans /usr/lib, mais /etc/
           sudo cp /etc/systemd/system/MatVal-simeis-server.service debian/usr/lib/systemd/system/
 
           dpkg-deb --build debian
           mv debian.deb MatVal-simeis-server_${{ env.GIT_RELEASE }}_all.deb
           chmod a+r MatVal-simeis-server_${{ env.GIT_RELEASE }}_all.deb
+          # Non, PWD c'est le DOSSIER courant, et un package ne S'EXÉCUTE PAS
+          # Donc pas besoin de lui donner des droits ! C'est dangereux
           chmod o+x $PWD
 
+          # PAS DE SUDO
+          # Pas d'installation sur le runner de la CI
           sudo apt-get update
           sudo apt-get install -y cmatrix
           sudo dpkg -i MatVal-simeis-server_${{ env.GIT_RELEASE }}_all.deb
 
+          # SUDOOOOOOOOOO
+          # CIIIIII
+          # INSTALLATIOOOOON
           sudo systemctl daemon-reload
           sudo systemctl enable --now MatVal-simeis-server.service
           sudo systemctl status MatVal-simeis-server.service
 
+      # Sachant que ça se fait sans le package .deb au final, on peut le paralléliser
       - name: Build Image
         run: |
           docker build -f .github/Dockerfile -t simeis-server:${{ env.GIT_RELEASE }} .
           docker image save simeis-server:${{ env.GIT_RELEASE }} > MatVal-simeis-server_${{ env.GIT_RELEASE }}.tar
+
+      # Ne se login que si ton image est OK, tu fais du traffic pour rien
       - name: Login to Docker Hub
         run: |
           echo "${{ secrets.DOCKER_TOKEN }}" | docker login -u valentinrusseil --password-stdin
+
       - name: Check Docker Image
         run: |
           docker run --rm simeis-server:${{ env.GIT_RELEASE }} &
           sleep 5
           kill $(jobs -p)
+
       - name: Build and export to Docker
         run: |
           VERSION=${{ env.GIT_RELEASE }}
           IMAGE_NAME=valentinrusseil/simeis-server:${VERSION}
           docker tag simeis-server:${{ env.GIT_RELEASE }} ${IMAGE_NAME}
           docker push ${IMAGE_NAME}
+
       - name: Release the new binaries
         uses: mini-bomba/create-github-release@v1.2.0
         with:
@@ -133,6 +166,7 @@ jobs:
           prerelease: true
           name: "Release ${{ env.GIT_RELEASE }}"
           body: |
+            # Vous auriez pu faire un joli body quand même
             This automatic prerelease is built from commit ${{ env.GIT_HASH }} and was triggered by @${{ github.actor }}
             [Github Actions workflow run that built this prerelease](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
             Commit message:
@@ -140,7 +174,7 @@ jobs:
           files: |
             target/release/simeis-server
             MatVal-simeis-server_${{ env.GIT_RELEASE }}_all.deb
-            MatVal-simeis-server_${{ env.GIT_RELEASE }}.tar
+            MatVal-simeis-server_${{ env.GIT_RELEASE }}.tar  # J'aurais mis dans le nom que c'est une image docker exportée perso
           clear_attachments: true
 
   deployment:
@@ -156,6 +190,8 @@ jobs:
         run: |
           echo "${{ secrets.SSH_KEY }}" > ssh_key
           chmod 600 ssh_key
+
+      # Yes, bien
       - name: Deploy to server
         run: |
           wget https://github.com/ValentinRusseil/simeis-project/releases/download/${{ env.GIT_RELEASE }}/MatVal-simeis-server_${{ env.GIT_RELEASE }}_all.deb
@@ -169,6 +205,7 @@ jobs:
           dpkg-deb -x MatVal-simeis-server_${{ env.GIT_RELEASE }}_all.deb .
           usr/bin/MatVal-simeis-server &
 
+          # On devrait checker ici si la version de retour correspond à celle qu'on a déployée
           curl ${{ secrets.IP_SERVER }}:9544/version
 
           pkill -f MatVal-simeis-server
@@ -180,7 +217,7 @@ jobs:
     if: failure()
     steps:
       - uses: actions/checkout@v4
-      - name: Download coverage status
+      - name: Download coverage status  # ?
         uses: actions/download-artifact@v4
         continue-on-error: true
         with:
@@ -190,6 +227,7 @@ jobs:
         with:
             github_token: ${{ secrets.GITHUB_TOKEN }}
             labels: deployment-fail
-      - run: |
+
+      - run: |  # Inutile au point d'en devenir rigolo x)
           echo "Deployment failed. Please check the logs for more details."
           exit 0

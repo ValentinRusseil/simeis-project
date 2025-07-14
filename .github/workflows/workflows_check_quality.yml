@@ -8,6 +8,7 @@ on:
 
 # JOBS
 jobs:
+    # Pour du check de qualité, le build en mode release est overkill
     release:
         runs-on: ubuntu-latest
         steps:
@@ -53,4 +54,3 @@ jobs:
               if: steps.cache.outputs.cache-hit != 'true'
               run: make setup-install
             - run: make quality-check
-    

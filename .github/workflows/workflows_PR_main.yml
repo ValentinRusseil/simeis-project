@@ -1,5 +1,16 @@
 name: CI Main
 
+# Workflow très lourd, la branche `main` sert à réceptionner tous les changements faits
+# par les devs
+# Donc:
+# - Pas de build en release
+# - Pas de build de documentation (à la limite c'est pas grave ça)
+# - Pas de heavy tests
+# - Pas d'audit
+# Uniquement du check de qualité de code (statique) est nécessaire,
+#   mais vous n'avez fait qu'un `cargo check`
+# Avec le fait qu'il y ait votre workflow `workflos_check_quality`, c'est au mieux redondant, au pire inutile
+
 # Trigger
 on:
     pull_request:
@@ -8,6 +19,7 @@ on:
 
 # JOBS
 jobs:
+    # Nom bizarre sachant que l'on ne fait pas une release, on ne fait que build en release
     release:
         runs-on: ubuntu-latest
         steps:
@@ -15,7 +27,9 @@ jobs:
             - uses: actions-rust-lang/setup-rust-toolchain@v1
               with: 
                 toolchain: 1.85.0
+
             - run: make release
+
     build-manual:        
         runs-on: ubuntu-latest
         steps:
@@ -37,6 +51,7 @@ jobs:
               if: steps.cache.outputs.cache-hit != 'true'
               run: make setup-install
             - run: make build-manual
+
     test:
         runs-on: ubuntu-latest
         steps:
@@ -45,6 +60,7 @@ jobs:
               with: 
                 toolchain: 1.85.0
             - run: make test
+
     check-code:
         runs-on: ubuntu-latest
         steps:
@@ -52,7 +68,8 @@ jobs:
             - uses: actions-rust-lang/setup-rust-toolchain@v1
               with: 
                 toolchain: 1.85.0
-            - run: make check-code
+            - run: make check-code # Check code pas suffisant, avoir un quality check aussi
+
     audit:
         runs-on: ubuntu-latest
         steps:

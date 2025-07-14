@@ -1,4 +1,5 @@
 # SIMEIS
+
 Simeis est un jeu de gestion dans l’espace par API dont l’objectif principal est de ne jamais tomber en banqueroute.
 Chaque joueur démarre avec une station spatiale et des crédits. Son objectif est alors d’assembler une flotte et un équipage afin d’aller farmer des ressources sur des planètes.
 
@@ -6,13 +7,13 @@ Il est possible d'acheter des améliorations afin d'augmenter son efficacité.
 
 ## Contexte du projet
 Ce projet a été créé à partir d'un code déjà existant afin de pouvoir y intégrer des éléments d'intégration et de déploiement continu.
-Le code en lui-même est très simple car notre travail c'est majoritairement concentré sur le fait d'avoir des workflows optimisés et fonctionnels.
+Le code en lui-même est très simple car notre travail s'est majoritairement concentré sur le fait d'avoir des workflows optimisés et fonctionnels.
 
 ## Technologies Utilisées
 Ce projet fonctionne en Rust mais le bot du joueur ainsi que certains tests sont en Python.
 
 ## Installation
-Dernière version du projet released : [Simeis](https://github.com/ValentinRusseil/simeis-project/releases/tag/1.1.1)
+Dernière version du projet released : [Simeis](https://github.com/ValentinRusseil/simeis-project/releases/tag/1.1.2)  <!-- On aurait pu avoir un workflow dans la CI qui bump automatiquement ce lien à la dernière version -->
 
 ```cmd
 # pour récupérer le code sur github
@@ -23,7 +24,7 @@ git clone https://github.com/ValentinRusseil/simeis-project.git
 # en se servant d'une release
 # ! attention cette version est en débian !
 # Remplacez {VERSION} par la version que vous aurez choisi
-wget https://github.com/ValentinRusseil/simeis-project/releases/download/1.1.1/MatVal-simeis-server_{VERSION}_all.deb
+wget https://github.com/ValentinRusseil/simeis-project/releases/download/{VERSION}/MatVal-simeis-server_{VERSION}_all.deb
 
 dpkg-deb -x MatVal-simeis-server_{VERSION}.deb
 

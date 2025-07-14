@@ -37,19 +37,23 @@ jobs:
                 coverage_exit_code=$?
                 echo $coverage_exit_code > code-coverage-status.txt
                 exit 0
+            # À partir du code d'erreur, on peut retrouver sur les steps d'après si le
+            # coverage est suffisant ou non, et ajouter le label demandé
             - name: Upload Code Coverage Status
               uses: actions/upload-artifact@v4
-              if: always()
+              if: always() # Inutile
               with:
                 name: coverage-status
                 path: code-coverage-status.txt
+
+    # Très très bizarre comme manière de faire, mais ça fait le café I guess
     failure-code-coverage:
         permissions:
             contents: write
             issues: write
             pull-requests: write
         runs-on: ubuntu-latest
-        if: always()
+        if: always()  # Inutile
         needs: [code-coverage]
         steps:
             - uses: actions/checkout@v4
